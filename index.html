@@ -24,7 +24,47 @@ body {
   font-family: 'Nunito Sans', sans-serif;
   color: #24464b;
   text-align: center;
-  background: linear-gradient(145deg,#e3f4ef,#fff6e8);
+  background: transparent;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Рисованный фон: море, морская пена и песок */
+.sea-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    #b4d0d8 0%,
+    #c2d9dc 42%,
+    #d5e2df 76%,
+    #e5dcc8 100%
+  );
+}
+
+.sea-background svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Лёгкая песочная текстура */
+.sand-texture {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24%;
+  opacity: .22;
+  background-image:
+    radial-gradient(#ad9876 0.7px, transparent 0.9px),
+    radial-gradient(#fff8e9 0.8px, transparent 1px);
+  background-size: 19px 21px, 27px 25px;
+  background-position: 0 0, 9px 12px;
+  mask-image: linear-gradient(to bottom, transparent, #000 35%);
 }
 
 header {
@@ -125,6 +165,7 @@ canvas {
   opacity: 0;
 }
 
+/* Фиолетовая кнопка — прежняя форма и анимация */
 button {
   display: block;
   width: min(100%, 340px);
@@ -133,24 +174,24 @@ button {
   border: 0;
   border-radius: 18px;
   color: #fff;
-  background: linear-gradient(135deg, #319b91, #24766f);
+  background: linear-gradient(135deg, #aa8bd8, #8967c5);
   font-family: 'Nunito Sans', sans-serif;
   font-size: 22px;
   font-weight: 900;
   letter-spacing: 0.3px;
   cursor: pointer;
-  box-shadow: 0 7px 0 #1d625d, 0 10px 20px #287c7840;
+  box-shadow: 0 7px 0 #7052a5, 0 10px 20px #8967c540;
   transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
 }
 
 button:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 9px 0 #1d625d, 0 13px 24px #287c7840;
+  box-shadow: 0 9px 0 #7052a5, 0 13px 24px #8967c540;
 }
 
 button:not(:disabled):active {
   transform: translateY(4px);
-  box-shadow: 0 3px 0 #1d625d, 0 5px 12px #287c7840;
+  box-shadow: 0 3px 0 #7052a5, 0 5px 12px #8967c540;
 }
 
 button:disabled {
@@ -217,6 +258,123 @@ footer {
 </head>
 
 <body>
+
+<!-- Фоновая иллюстрация -->
+<div class="sea-background" aria-hidden="true">
+  <svg viewBox="0 0 1440 1000" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="seaGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a9cbd5"/>
+        <stop offset="55%" stop-color="#bdd7dc"/>
+        <stop offset="100%" stop-color="#d7e3df"/>
+      </linearGradient>
+
+      <linearGradient id="foamGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".05"/>
+        <stop offset="45%" stop-color="#f8fbf6" stop-opacity=".65"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".08"/>
+      </linearGradient>
+
+      <filter id="softWave" x="-10%" y="-50%" width="120%" height="200%">
+        <feGaussianBlur stdDeviation="7"/>
+      </filter>
+
+      <filter id="fineWave" x="-10%" y="-50%" width="120%" height="200%">
+        <feGaussianBlur stdDeviation="2.5"/>
+      </filter>
+
+      <pattern id="sandPattern" width="32" height="32"
+               patternUnits="userSpaceOnUse">
+        <circle cx="5" cy="8" r="1.1" fill="#b7a17e" opacity=".3"/>
+        <circle cx="23" cy="17" r=".8" fill="#fff8e9" opacity=".6"/>
+        <circle cx="14" cy="28" r=".7" fill="#b7a17e" opacity=".25"/>
+      </pattern>
+    </defs>
+
+    <rect width="1440" height="1000" fill="url(#seaGradient)"/>
+
+    <!-- Мягкие подводные оттенки -->
+    <path d="M0 490 Q250 455 480 485 T950 480 T1440 470
+             L1440 760 Q1150 720 900 750 T400 735 T0 760Z"
+          fill="#d5e3df" opacity=".22"/>
+
+    <path d="M0 590 Q300 550 570 585 T1100 570 T1440 580"
+          fill="none" stroke="#e9f1eb" stroke-width="55"
+          opacity=".12" filter="url(#softWave)"/>
+
+    <!-- Размытая дальняя морская пена -->
+    <path d="M-40 700
+             C130 660 230 680 370 690
+             C510 700 590 665 740 680
+             C900 695 1010 675 1150 685
+             C1270 695 1360 660 1490 670"
+          fill="none" stroke="#f9fbf5" stroke-width="35"
+          stroke-linecap="round" opacity=".43" filter="url(#softWave)"/>
+
+    <!-- Основная мягкая линия прибоя -->
+    <path d="M-40 730
+             C100 690 220 715 350 720
+             C500 730 610 690 760 710
+             C900 730 1030 700 1170 715
+             C1300 730 1380 690 1490 705"
+          fill="none" stroke="url(#foamGradient)" stroke-width="24"
+          stroke-linecap="round" opacity=".8" filter="url(#fineWave)"/>
+
+    <!-- Тонкие неровные линии пены -->
+    <path d="M-30 718
+             C100 695 190 713 300 712
+             C420 710 490 690 600 705
+             C730 720 810 698 920 706
+             C1040 716 1110 694 1220 706
+             C1330 720 1390 695 1470 700"
+          fill="none" stroke="#f8fbf5" stroke-width="5"
+          stroke-linecap="round" opacity=".48" filter="url(#fineWave)"/>
+
+    <path d="M-20 748
+             C130 720 240 748 380 740
+             C520 732 620 750 760 735
+             C900 720 1010 750 1150 740
+             C1280 730 1370 750 1460 735"
+          fill="none" stroke="#ffffff" stroke-width="3"
+          stroke-linecap="round" opacity=".38" filter="url(#fineWave)"/>
+
+    <!-- Небольшие размытые участки пены -->
+    <g fill="#ffffff" opacity=".32" filter="url(#softWave)">
+      <ellipse cx="180" cy="725" rx="90" ry="12"/>
+      <ellipse cx="570" cy="714" rx="110" ry="10"/>
+      <ellipse cx="980" cy="720" rx="100" ry="12"/>
+      <ellipse cx="1320" cy="713" rx="90" ry="10"/>
+    </g>
+
+    <!-- Песчаный берег в самом низу -->
+    <path d="M-30 775
+             C130 760 260 785 410 775
+             C570 765 690 790 840 775
+             C1010 760 1120 790 1270 775
+             C1360 765 1420 775 1470 770
+             L1470 1030 L-30 1030Z"
+          fill="#e5d9c3"/>
+
+    <path d="M-30 775
+             C130 760 260 785 410 775
+             C570 765 690 790 840 775
+             C1010 760 1120 790 1270 775
+             C1360 765 1420 775 1470 770
+             L1470 1030 L-30 1030Z"
+          fill="url(#sandPattern)" opacity=".8"/>
+
+    <!-- Лёгкий влажный оттенок у кромки воды -->
+    <path d="M-20 770
+             C130 755 260 778 410 768
+             C570 758 690 782 840 768
+             C1010 753 1120 782 1270 768
+             C1360 758 1420 768 1470 763"
+          fill="none" stroke="#f7f5e9" stroke-width="10"
+          opacity=".48" filter="url(#fineWave)"/>
+  </svg>
+  <div class="sand-texture"></div>
+</div>
 
 <header>
   <div class="decor">✈️ 🌴 🧳</div>
@@ -319,6 +477,53 @@ function normalizePrize(item) {
   };
 }
 
+/* Перенос названия по словам с подгонкой размера */
+function wrapCanvasText(text, fontSize, maxWidth) {
+  ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? currentLine + ' ' + word : word;
+
+    if (ctx.measureText(testLine).width <= maxWidth) {
+      currentLine = testLine;
+      continue;
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+      currentLine = '';
+    }
+
+    /* Если даже отдельное слово слишком длинное — делим его по буквам */
+    if (ctx.measureText(word).width > maxWidth) {
+      let part = '';
+
+      for (const char of Array.from(word)) {
+        const testPart = part + char;
+
+        if (ctx.measureText(testPart).width <= maxWidth || !part) {
+          part = testPart;
+        } else {
+          lines.push(part);
+          part = char;
+        }
+      }
+
+      currentLine = part;
+    } else {
+      currentLine = word;
+    }
+  }
+
+  if (currentLine) lines.push(currentLine);
+
+  return lines;
+}
+
 function drawWheel() {
   const cx = 300, cy = 300, radius = 285;
 
@@ -370,58 +575,36 @@ function drawWheel() {
     ctx.textBaseline = 'middle';
 
     const emojiSize = prizes.length > 8 ? 26 : 32;
-const textSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
+    const baseTextSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
+    const maxWidth = prizes.length > 7 ? 110 : 135;
+    const maxLines = 3;
 
-ctx.font = `${emojiSize}px Arial`;
-ctx.fillText(label.emoji, x, y - 25);
+    let fontSize = baseTextSize;
+    let lines = wrapCanvasText(label.name, fontSize, maxWidth);
 
-ctx.fillStyle = '#29464a';
-
-const maxWidth = prizes.length > 7 ? 110 : 135;
-const maxLines = 3;
-const lineHeight = textSize * 1.05;
-
-function wrapText(text, fontSize) {
-  ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
-
-  const words = text.split(/\s+/);
-  const lines = [];
-  let currentLine = '';
-
-  for (const word of words) {
-    const testLine = currentLine ? currentLine + ' ' + word : word;
-
-    if (ctx.measureText(testLine).width <= maxWidth) {
-      currentLine = testLine;
-    } else {
-      if (currentLine) lines.push(currentLine);
-      currentLine = word;
+    while (lines.length > maxLines && fontSize > 12) {
+      fontSize--;
+      lines = wrapCanvasText(label.name, fontSize, maxWidth);
     }
-  }
 
-  if (currentLine) lines.push(currentLine);
+    /* Если название всё ещё длинное, разрешаем дополнительную строку */
+    const totalHeight = lines.length * fontSize * 1.05;
+    const lineHeight = fontSize * 1.05;
+    const startY = y + 13 - totalHeight / 2;
 
-  return lines;
-}
+    ctx.fillStyle = '#29464a';
+    ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
 
-let fontSize = textSize;
-let lines = wrapText(label.name, fontSize);
+    /* Эмодзи располагается над многострочным названием */
+    ctx.font = `${emojiSize}px Arial`;
+    ctx.fillText(label.emoji, x, startY - emojiSize * 0.9);
 
-while (lines.length > maxLines && fontSize > 12) {
-  fontSize--;
-  lines = wrapText(label.name, fontSize);
-}
+    ctx.fillStyle = '#29464a';
+    ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
 
-ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-
-const totalHeight = lines.length * fontSize * 1.05;
-const startY = y + 8 - totalHeight / 2;
-
-lines.forEach((line, index) => {
-  ctx.fillText(line, x, startY + index * fontSize * 1.05);
-});
+    lines.forEach((line, index) => {
+      ctx.fillText(line, x, startY + index * lineHeight);
+    });
 
     ctx.restore();
   });
