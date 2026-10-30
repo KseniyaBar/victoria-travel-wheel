@@ -1,24 +1,74 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Админ-панель | Виктория Герасимова</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   padding: 28px 16px;
   min-height: 100vh;
-  font-family: Arial, sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
   color: #263b43;
-  background: linear-gradient(135deg, #e7f6f3, #f8f3e9);
+  background: transparent;
+  position: relative;
+  isolation: isolate;
 }
 
-.container { max-width: 1000px; margin: auto; }
+/* Фон в стиле клиентской страницы */
+.sea-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    #b4d0d8 0%,
+    #c2d9dc 42%,
+    #d5e2df 76%,
+    #e5dcc8 100%
+  );
+}
+
+.sea-background svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sand-texture {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24%;
+  opacity: .22;
+  background-image:
+    radial-gradient(#ad9876 0.7px, transparent 0.9px),
+    radial-gradient(#fff8e9 0.8px, transparent 1px);
+  background-size: 19px 21px, 27px 25px;
+  background-position: 0 0, 9px 12px;
+  mask-image: linear-gradient(to bottom, transparent, #000 35%);
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
 
 .panel {
   background: white;
@@ -28,44 +78,139 @@ body {
   margin-bottom: 20px;
 }
 
-h1 { margin-top: 0; color: #245b61; }
-h2 { color: #245b61; font-size: 21px; margin-top: 0; }
+h1 {
+  margin-top: 0;
+  color: #24666a;
+  font-weight: 900;
+}
+
+h2 {
+  color: #24666a;
+  font-size: 21px;
+  margin-top: 0;
+  font-weight: 800;
+}
+
+h3 {
+  color: #24666a;
+  font-weight: 800;
+}
 
 input {
   width: 100%;
   padding: 13px;
   margin: 7px 0 14px;
-  border: 1px solid #ccd9d7;
+  border: 1px solid #d9cdec;
   border-radius: 10px;
+  font-family: 'Nunito Sans', sans-serif;
   font-size: 16px;
   background: white;
+  color: #263b43;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-label { font-size: 14px; font-weight: 600; }
+input:focus {
+  border-color: #a98bd8;
+  box-shadow: 0 0 0 3px #a98bd825;
+}
 
+label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #526b70;
+}
+
+/* Основные фиолетовые кнопки */
 button {
   border: 0;
   border-radius: 10px;
   padding: 12px 17px;
-  background: #287c78;
+  background: linear-gradient(135deg, #aa8bd8, #8967c5);
   color: white;
+  font-family: 'Nunito Sans', sans-serif;
   font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 4px 0 #7052a5, 0 6px 12px #8967c525;
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    opacity .2s ease,
+    background .2s ease;
 }
 
-button:hover { background: #206763; }
-button:disabled { opacity: .45; cursor: not-allowed; }
+button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #7052a5, 0 9px 16px #8967c530;
+}
 
-button.secondary { background: #71878a; }
-button.danger { background: #b94b4b; }
-button.danger:hover { background: #963b3b; }
-button.small { padding: 8px 11px; font-size: 12px; }
+button:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #7052a5, 0 3px 7px #8967c525;
+}
 
-.hidden { display: none !important; }
-.muted { color: #718184; font-size: 13px; }
-.message { margin-top: 12px; white-space: pre-wrap; font-size: 14px; }
-.error { color: #b33b3b; }
-.success { color: #24734c; }
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Второстепенные кнопки */
+button.secondary {
+  background: linear-gradient(135deg, #c5b4e2, #a994d0);
+  box-shadow: 0 4px 0 #8872b0, 0 6px 12px #8967c520;
+}
+
+button.secondary:not(:disabled):hover {
+  box-shadow: 0 6px 0 #8872b0, 0 9px 16px #8967c525;
+}
+
+button.secondary:not(:disabled):active {
+  box-shadow: 0 1px 0 #8872b0, 0 3px 7px #8967c520;
+}
+
+/* Опасные действия остаются красными */
+button.danger {
+  background: linear-gradient(135deg, #d47c7c, #b94b4b);
+  box-shadow: 0 4px 0 #963b3b, 0 6px 12px #b94b4b25;
+}
+
+button.danger:not(:disabled):hover {
+  box-shadow: 0 6px 0 #963b3b, 0 9px 16px #b94b4b30;
+}
+
+button.danger:not(:disabled):active {
+  box-shadow: 0 1px 0 #963b3b, 0 3px 7px #b94b4b25;
+}
+
+button.small {
+  padding: 8px 11px;
+  font-size: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.muted {
+  color: #718184;
+  font-size: 13px;
+}
+
+.message {
+  margin-top: 12px;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+
+.error {
+  color: #b33b3b;
+}
+
+.success {
+  color: #24734c;
+}
 
 .topbar {
   display: flex;
@@ -81,27 +226,42 @@ button.small { padding: 8px 11px; font-size: 12px; }
   flex-wrap: wrap;
 }
 
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
 th, td {
   padding: 12px 10px;
-  border-bottom: 1px solid #e7eeee;
+  border-bottom: 1px solid #eee8f5;
   text-align: left;
   font-size: 14px;
   vertical-align: top;
 }
 
-th { color: #567174; }
+th {
+  color: #78658e;
+  background: #f8f5fc;
+}
 
 .link {
   display: inline-block;
   max-width: 240px;
   overflow-wrap: anywhere;
-  color: #247c78;
+  color: #8967c5;
+  font-weight: 700;
 }
 
-.copy-btn { padding: 7px 10px; margin-top: 5px; font-size: 12px; }
+.copy-btn {
+  padding: 7px 10px;
+  margin-top: 5px;
+  font-size: 12px;
+}
 
 .tabs {
   display: flex;
@@ -110,16 +270,43 @@ th { color: #567174; }
   margin-bottom: 18px;
 }
 
-.tabs button { background: #e8f1ef; color: #245b61; }
-.tabs button.active { background: #287c78; color: white; }
+.tabs button {
+  background: #f0eaf8;
+  color: #705b91;
+  box-shadow: none;
+}
 
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+.tabs button:not(:disabled):hover {
+  background: #e8def5;
+  box-shadow: none;
+}
 
-.prize-list { display: grid; gap: 12px; }
+.tabs button:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.tabs button.active {
+  background: linear-gradient(135deg, #aa8bd8, #8967c5);
+  color: white;
+  box-shadow: 0 4px 0 #7052a5, 0 6px 12px #8967c525;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.prize-list {
+  display: grid;
+  gap: 12px;
+}
 
 .prize-card {
-  border: 1px solid #e1ebea;
+  border: 1px solid #e9e1f1;
   border-radius: 13px;
   padding: 15px;
   display: flex;
@@ -127,12 +314,29 @@ th { color: #567174; }
   justify-content: space-between;
   gap: 14px;
   flex-wrap: wrap;
+  background: #fdfcff;
 }
 
-.prize-info { flex: 1; min-width: 180px; }
-.prize-emoji { font-size: 27px; margin-right: 8px; }
-.prize-name { font-weight: 700; color: #245b61; }
-.prize-description { margin-top: 5px; font-size: 13px; color: #718184; }
+.prize-info {
+  flex: 1;
+  min-width: 180px;
+}
+
+.prize-emoji {
+  font-size: 27px;
+  margin-right: 8px;
+}
+
+.prize-name {
+  font-weight: 800;
+  color: #705b91;
+}
+
+.prize-description {
+  margin-top: 5px;
+  font-size: 13px;
+  color: #718184;
+}
 
 .status {
   display: inline-block;
@@ -142,9 +346,13 @@ th { color: #567174; }
   background: #e8f5ed;
   color: #24734c;
   margin-top: 7px;
+  font-weight: 700;
 }
 
-.status.claimed { background: #fff1e6; color: #a65a25; }
+.status.claimed {
+  background: #fff1e6;
+  color: #a65a25;
+}
 
 .form-grid {
   display: grid;
@@ -153,12 +361,13 @@ th { color: #567174; }
 }
 
 .notice {
-  background: #f1f7f6;
+  background: #f3eff9;
   border-radius: 12px;
   padding: 13px;
   margin: 12px 0;
   font-size: 13px;
   line-height: 1.5;
+  color: #6e5b88;
 }
 
 .notice.warning {
@@ -171,15 +380,151 @@ th { color: #567174; }
   background: #fffafa;
 }
 
+/* Окно редактирования */
+#editOverlay {
+  backdrop-filter: blur(5px);
+}
+
+#editOverlay .panel {
+  box-shadow: 0 15px 45px #35234d35;
+}
+
 @media (max-width: 600px) {
-  .panel { padding: 20px 15px; }
-  .form-grid { grid-template-columns: 1fr; }
-  th, td { padding: 10px 7px; }
+  body {
+    padding: 18px 12px;
+  }
+
+  .panel {
+    padding: 20px 15px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  th, td {
+    padding: 10px 7px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
 }
 </style>
 </head>
 
 <body>
+
+<!-- Фоновая иллюстрация -->
+<div class="sea-background" aria-hidden="true">
+  <svg viewBox="0 0 1440 1000" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="seaGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a9cbd5"/>
+        <stop offset="55%" stop-color="#bdd7dc"/>
+        <stop offset="100%" stop-color="#d7e3df"/>
+      </linearGradient>
+
+      <linearGradient id="foamGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".05"/>
+        <stop offset="45%" stop-color="#f8fbf6" stop-opacity=".65"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".08"/>
+      </linearGradient>
+
+      <filter id="softWave" x="-10%" y="-50%" width="120%" height="200%">
+        <feGaussianBlur stdDeviation="7"/>
+      </filter>
+
+      <filter id="fineWave" x="-10%" y="-50%" width="120%" height="200%">
+        <feGaussianBlur stdDeviation="2.5"/>
+      </filter>
+
+      <pattern id="sandPattern" width="32" height="32"
+               patternUnits="userSpaceOnUse">
+        <circle cx="5" cy="8" r="1.1" fill="#b7a17e" opacity=".3"/>
+        <circle cx="23" cy="17" r=".8" fill="#fff8e9" opacity=".6"/>
+        <circle cx="14" cy="28" r=".7" fill="#b7a17e" opacity=".25"/>
+      </pattern>
+    </defs>
+
+    <rect width="1440" height="1000" fill="url(#seaGradient)"/>
+
+    <path d="M0 490 Q250 455 480 485 T950 480 T1440 470
+             L1440 760 Q1150 720 900 750 T400 735 T0 760Z"
+          fill="#d5e3df" opacity=".22"/>
+
+    <path d="M0 590 Q300 550 570 585 T1100 570 T1440 580"
+          fill="none" stroke="#e9f1eb" stroke-width="55"
+          opacity=".12" filter="url(#softWave)"/>
+
+    <path d="M-40 700
+             C130 660 230 680 370 690
+             C510 700 590 665 740 680
+             C900 695 1010 675 1150 685
+             C1270 695 1360 660 1490 670"
+          fill="none" stroke="#f9fbf5" stroke-width="35"
+          stroke-linecap="round" opacity=".43" filter="url(#softWave)"/>
+
+    <path d="M-40 730
+             C100 690 220 715 350 720
+             C500 730 610 690 760 710
+             C900 730 1030 700 1170 715
+             C1300 730 1380 690 1490 705"
+          fill="none" stroke="url(#foamGradient)" stroke-width="24"
+          stroke-linecap="round" opacity=".8" filter="url(#fineWave)"/>
+
+    <path d="M-30 718
+             C100 695 190 713 300 712
+             C420 710 490 690 600 705
+             C730 720 810 698 920 706
+             C1040 716 1110 694 1220 706
+             C1330 720 1390 695 1470 700"
+          fill="none" stroke="#f8fbf5" stroke-width="5"
+          stroke-linecap="round" opacity=".48" filter="url(#fineWave)"/>
+
+    <path d="M-20 748
+             C130 720 240 748 380 740
+             C520 732 620 750 760 735
+             C900 720 1010 750 1150 740
+             C1280 730 1370 750 1460 735"
+          fill="none" stroke="#ffffff" stroke-width="3"
+          stroke-linecap="round" opacity=".38" filter="url(#fineWave)"/>
+
+    <g fill="#ffffff" opacity=".32" filter="url(#softWave)">
+      <ellipse cx="180" cy="725" rx="90" ry="12"/>
+      <ellipse cx="570" cy="714" rx="110" ry="10"/>
+      <ellipse cx="980" cy="720" rx="100" ry="12"/>
+      <ellipse cx="1320" cy="713" rx="90" ry="10"/>
+    </g>
+
+    <path d="M-30 775
+             C130 760 260 785 410 775
+             C570 765 690 790 840 775
+             C1010 760 1120 790 1270 775
+             C1360 765 1420 775 1470 770
+             L1470 1030 L-30 1030Z"
+          fill="#e5d9c3"/>
+
+    <path d="M-30 775
+             C130 760 260 785 410 775
+             C570 765 690 790 840 775
+             C1010 760 1120 790 1270 775
+             C1360 765 1420 775 1470 770
+             L1470 1030 L-30 1030Z"
+          fill="url(#sandPattern)" opacity=".8"/>
+
+    <path d="M-20 770
+             C130 755 260 778 410 768
+             C570 758 690 782 840 768
+             C1010 753 1120 782 1270 768
+             C1360 758 1420 768 1470 763"
+          fill="none" stroke="#f7f5e9" stroke-width="10"
+          opacity=".48" filter="url(#fineWave)"/>
+  </svg>
+  <div class="sand-texture"></div>
+</div>
+
 <div class="container">
 
   <section class="panel">
