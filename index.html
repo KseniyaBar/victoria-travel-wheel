@@ -122,7 +122,7 @@ footer { margin-top: 22px; font-size: 13px; color: #8a9c9b; }
   <div class="wheel-wrap">
     <div class="pointer"></div>
     <canvas id="wheel" width="600" height="600"></canvas>
-    <div class="center"></div>
+    <div class="center loading"></div>
   </div>
 
   <button id="spinButton" disabled>Загрузка...</button>
@@ -209,6 +209,7 @@ function drawWheel() {
   ctx.clearRect(0, 0, 600, 600);
 
   if (!prizes.length) {
+    document.querySelector('.center').classList.add('loading');
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fillStyle = '#e8f1ef';
@@ -294,6 +295,7 @@ async function loadWheelPrizes() {
   }
 
   prizes = list.map(normalizePrize).filter(prize => prize.name);
+  document.querySelector('.center').classList.remove('loading');
   if (!prizes.length) {
     throw new Error('Пока нет активных подарков. Обратитесь к Виктории.');
   }
