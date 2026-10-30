@@ -4,22 +4,50 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Колесо путешествий — Виктория Герасимова</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   padding: 28px 16px 45px;
-  font-family: Arial, sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
   color: #24464b;
   text-align: center;
   background: linear-gradient(145deg,#e3f4ef,#fff6e8);
 }
-header { margin-bottom: 24px; }
-header h1 { font-size: 27px; margin: 8px 0; color: #24666a; }
-header p { margin: 0; color: #668184; }
-.decor { font-size: 30px; letter-spacing: 9px; }
+
+header {
+  margin-bottom: 24px;
+}
+
+header h1 {
+  font-size: 27px;
+  font-weight: 800;
+  margin: 8px 0;
+  color: #24666a;
+}
+
+header p {
+  margin: 0;
+  color: #668184;
+  font-size: 16px;
+}
+
+.decor {
+  font-size: 30px;
+  letter-spacing: 9px;
+}
+
 .card {
   max-width: 540px;
   margin: 0 auto;
@@ -28,15 +56,32 @@ header p { margin: 0; color: #668184; }
   border-radius: 24px;
   box-shadow: 0 12px 35px #24464b16;
 }
-h2 { color: #24666a; margin: 0 0 12px; }
-#welcome { font-size: 23px; font-weight: bold; margin: 18px 0 8px; }
-#instruction { color: #71878a; line-height: 1.5; }
+
+h2 {
+  color: #24666a;
+  margin: 0 0 12px;
+  font-weight: 800;
+}
+
+#welcome {
+  font-size: 23px;
+  font-weight: 800;
+  margin: 18px 0 8px;
+}
+
+#instruction {
+  color: #71878a;
+  line-height: 1.5;
+  font-size: 16px;
+}
+
 .wheel-wrap {
   width: min(100%, 390px);
   aspect-ratio: 1;
   position: relative;
   margin: 25px auto;
 }
+
 canvas {
   display: block;
   width: 100%;
@@ -45,6 +90,7 @@ canvas {
   transition: transform 5s cubic-bezier(.12,.75,.12,1);
   filter: drop-shadow(0 7px 8px #24464b25);
 }
+
 .pointer {
   position: absolute;
   z-index: 2;
@@ -57,8 +103,9 @@ canvas {
   border-right: 17px solid transparent;
   border-top: 34px solid #d58b43;
   filter: drop-shadow(0 2px 2px #0002);
-}.
-  center {
+}
+
+.center {
   position: absolute;
   z-index: 1;
   width: 66px;
@@ -72,22 +119,44 @@ canvas {
   box-shadow: 0 2px 8px #0002;
   transition: opacity .3s ease;
 }
-  
+
 .center.loading {
   opacity: 0;
 }
-}
+
 button {
+  display: block;
+  width: min(100%, 340px);
+  margin: 24px auto 10px;
+  padding: 21px 30px;
   border: 0;
-  border-radius: 14px;
-  padding: 16px 30px;
-  color: white;
-  background: #287c78;
-  font-size: 17px;
-  font-weight: bold;
+  border-radius: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, #319b91, #24766f);
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
   cursor: pointer;
+  box-shadow: 0 7px 0 #1d625d, 0 10px 20px #287c7840;
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
 }
-button:disabled { opacity: .55; cursor: not-allowed; }
+
+button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 0 #1d625d, 0 13px 24px #287c7840;
+}
+
+button:not(:disabled):active {
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 #1d625d, 0 5px 12px #287c7840;
+}
+
+button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
 #result {
   display: none;
   margin: 22px 0 8px;
@@ -95,18 +164,57 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   border-radius: 16px;
   background: #f1f8f3;
 }
-#result h2 { font-size: 25px; }
-#prizeName { font-size: 23px; font-weight: bold; color: #b87936; }
-#prizeDescription { color: #668184; margin-top: 8px; }
-#message { margin: 15px 0; color: #a34242; line-height: 1.5; }
-.thanks { margin-top: 22px; color: #668184; }
-footer { margin-top: 22px; font-size: 13px; color: #8a9c9b; }
+
+#result h2 {
+  font-size: 25px;
+}
+
+#prizeName {
+  font-size: 23px;
+  font-weight: 900;
+  color: #b87936;
+}
+
+#prizeDescription {
+  color: #668184;
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+#message {
+  margin: 15px 0;
+  color: #a34242;
+  line-height: 1.5;
+}
+
+.thanks {
+  margin-top: 22px;
+  color: #668184;
+}
+
+footer {
+  margin-top: 22px;
+  font-size: 13px;
+  color: #8a9c9b;
+}
+
 @media(max-width:420px) {
-  header h1 { font-size: 23px; }
-  .card { padding: 22px 14px; }
+  header h1 {
+    font-size: 23px;
+  }
+
+  .card {
+    padding: 22px 14px;
+  }
+
+  button {
+    font-size: 21px;
+    padding: 20px 22px;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -146,16 +254,16 @@ const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680pGjhMg_kvKvsrGo';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const colors = [
-  '#D8EAE2', // нежный мятный
-  '#F5DDD5', // пудровый персик
-  '#E4DDF0', // лаванда
-  '#F5EACD', // сливочный
-  '#D9E6F2', // небесный
-  '#EBDCE8', // розово-лиловый
-  '#DCE8D1', // фисташковый
-  '#F2E0C5', // песочный
-  '#D5E8E8', // аквамарин
-  '#E9DCE0'  // пыльная роза
+  '#D8EAE2',
+  '#F5DDD5',
+  '#E4DDF0',
+  '#F5EACD',
+  '#D9E6F2',
+  '#EBDCE8',
+  '#DCE8D1',
+  '#F2E0C5',
+  '#D5E8E8',
+  '#E9DCE0'
 ];
 
 const canvas = document.getElementById('wheel');
@@ -163,6 +271,7 @@ const ctx = canvas.getContext('2d');
 const button = document.getElementById('spinButton');
 const message = document.getElementById('message');
 const result = document.getElementById('result');
+const center = document.querySelector('.center');
 
 const token = new URLSearchParams(location.search).get('token');
 
@@ -172,13 +281,13 @@ let busy = false;
 
 function getField(item, ...keys) {
   for (const key of keys) {
-    if (item && item[key] !== undefined && item[key] !== null) return item[key];
+    if (item && item[key] !== undefined && item[key] !== null) {
+      return item[key];
+    }
   }
   return '';
 }
 
-// Для сертификатов на колесе показываем общее название,
-// а эмодзи помогает отличить один сертификат от другого.
 function getWheelLabel(prize) {
   const originalName = String(prize.name || '').trim();
   const normalized = originalName.toLocaleLowerCase('ru');
@@ -186,14 +295,19 @@ function getWheelLabel(prize) {
   if (normalized.includes('ozon')) {
     return { name: 'Сертификат', emoji: '🛍️' };
   }
+
   if (normalized.includes('золот') || normalized.includes('golden')) {
     return { name: 'Сертификат', emoji: '💄' };
   }
+
   if (String(prize.description || '').toLocaleLowerCase('ru').includes('сертификат')) {
     return { name: 'Сертификат', emoji: prize.emoji || '🎁' };
   }
 
-  return { name: originalName, emoji: prize.emoji || '🎁' };
+  return {
+    name: originalName,
+    emoji: prize.emoji || '🎁'
+  };
 }
 
 function normalizePrize(item) {
@@ -206,18 +320,22 @@ function normalizePrize(item) {
 
 function drawWheel() {
   const cx = 300, cy = 300, radius = 285;
+
   ctx.clearRect(0, 0, 600, 600);
 
   if (!prizes.length) {
-    document.querySelector('.center').classList.add('loading');
+    center.classList.add('loading');
+
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fillStyle = '#e8f1ef';
     ctx.fill();
+
     ctx.fillStyle = '#668184';
     ctx.textAlign = 'center';
-    ctx.font = '20px Arial';
+    ctx.font = '700 20px "Nunito Sans", sans-serif';
     ctx.fillText('Подарки загружаются', cx, cy);
+
     return;
   }
 
@@ -231,17 +349,19 @@ function drawWheel() {
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, radius, start, end);
     ctx.closePath();
+
     ctx.fillStyle = colors[i % colors.length];
     ctx.fill();
+
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 5;
     ctx.stroke();
 
-    // Текст и эмодзи остаются горизонтальными независимо от положения сектора.
     const middle = start + angle / 2;
     const labelRadius = prizes.length <= 5 ? 178 : 190;
     const x = cx + Math.cos(middle) * labelRadius;
     const y = cy + Math.sin(middle) * labelRadius;
+
     const label = getWheelLabel(prize);
 
     ctx.save();
@@ -249,14 +369,15 @@ function drawWheel() {
     ctx.textBaseline = 'middle';
 
     const emojiSize = prizes.length > 8 ? 26 : 32;
-const textSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
-    
+    const textSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
+
     ctx.font = `${emojiSize}px Arial`;
     ctx.fillText(label.emoji, x, y - 17);
 
-ctx.fillStyle = '#29464a';
-ctx.font = `bold ${textSize}px Arial`;
-ctx.fillText(label.name, x, y + 17, prizes.length > 7 ? 110 : 135);
+    ctx.fillStyle = '#29464a';
+    ctx.font = `900 ${textSize}px "Nunito Sans", sans-serif`;
+    ctx.fillText(label.name, x, y + 17, prizes.length > 7 ? 110 : 135);
+
     ctx.restore();
   });
 
@@ -270,9 +391,12 @@ ctx.fillText(label.name, x, y + 17, prizes.length > 7 ? 110 : 135);
 function showPrize(prizeName, description) {
   document.getElementById('prizeName').textContent = prizeName || 'Ваш подарок';
   document.getElementById('prizeDescription').textContent = description || '';
+
   result.style.display = 'block';
+
   button.disabled = true;
   button.textContent = 'Подарок уже получен';
+
   document.getElementById('instruction').textContent =
     'Ваш сюрприз уже определён. Спасибо за участие!';
 }
@@ -286,8 +410,13 @@ async function loadWheelPrizes() {
   }
 
   let list = data;
+
   if (typeof list === 'string') {
-    try { list = JSON.parse(list); } catch { list = []; }
+    try {
+      list = JSON.parse(list);
+    } catch {
+      list = [];
+    }
   }
 
   if (!Array.isArray(list)) {
@@ -295,10 +424,14 @@ async function loadWheelPrizes() {
   }
 
   prizes = list.map(normalizePrize).filter(prize => prize.name);
-  document.querySelector('.center').classList.remove('loading');
+
   if (!prizes.length) {
     throw new Error('Пока нет активных подарков. Обратитесь к Виктории.');
   }
+
+  await document.fonts.load('900 22px "Nunito Sans"');
+
+  center.classList.remove('loading');
 
   drawWheel();
 }
@@ -308,8 +441,6 @@ function findPrizeIndex(data) {
   const description = String(data.description || '').trim().toLocaleLowerCase('ru');
   const emoji = String(data.emoji || '').trim();
 
-  // Сначала ищем точное совпадение названия и описания — это важно,
-  // если в списке есть несколько одинаковых названий подарков.
   let index = prizes.findIndex(prize =>
     prize.name.trim().toLocaleLowerCase('ru') === prizeName &&
     prize.description.trim().toLocaleLowerCase('ru') === description
@@ -364,6 +495,7 @@ async function loadParticipant() {
   }
 
   participantName = data.name;
+
   document.getElementById('welcome').textContent =
     participantName + ', для вас есть подарок!';
 
@@ -436,5 +568,6 @@ drawWheel();
 button.addEventListener('click', spin);
 loadParticipant();
 </script>
+
 </body>
 </html>
