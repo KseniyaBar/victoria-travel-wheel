@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e8f7f6">
+  <title>Колесо путешествий — Виктория Герасимова</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 14px;
+      font-family: Arial, sans-serif;
+      color: #173b4b;
+      background: linear-gradient(145deg, #e8f7f6, #f8f5ed, #e5f0f4);
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 28px 18px;
+      border-radius: 24px;
+      background: #ffffffa8;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(26px, 6vw, 36px);
+      margin: 8px 0;
+      color: #17485a;
+    }
+
+    .subtitle {
+      color: #56747b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .greeting {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #d17d4e;
+    }
+
+    .wheel-wrap {
+      position: relative;
+      width: min(100%, 440px);
+      aspect-ratio: 1;
+      margin: 26px auto 18px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 12px 16px #315a6330);
+    }
+
+    .pointer {
+      position: absolute;
+      z-index: 2;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 17px solid transparent;
+      border-right: 17px solid transparent;
+      border-top: 34px solid #e58b58;
+    }
+
+    .hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: white;
+      border: 5px solid #dcefee;
+      font-size: 25px;
+    }
+
+    .notice {
+      margin: 16px auto 0;
+      padding: 14px;
+      max-width: 380px;
+      border-radius: 14px;
+      background: #ffffffb8;
+      color: #56747b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .decor {
+      position: absolute;
+      opacity: .2;
+      font-size: 34px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <span class="decor" style="top:15px;right:18px">✈️</span>
+    <span class="decor" style="bottom:30px;left:12px">🌴</span>
+
+    <h1>Турагент Виктория Герасимова</h1>
+
+    <div class="subtitle">
+      Ваши путешествия — моя забота
+    </div>
+
+    <div class="greeting" id="greeting">
+      Для вас есть подарок!
+    </div>
+
+    <p class="subtitle">
+      Крутите колесо и узнайте, что я для вас приготовила
+    </p>
+
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <canvas id="wheel" width="700" height="700"></canvas>
+      <div class="hub">✈️</div>
+    </div>
+
+    <div class="notice" id="status">
+      Спасибо, что путешествуете со мной!<br>
+      Скоро здесь можно будет получить свой подарок.
+    </div>
+  </main>
+
+  <script>
+    const prizes = [
+      { name: "OZON", detail: "Сертификат 1000 рублей", icon: "🎁", color: "#b8dce0" },
+      { name: "ЧЕМОДАН", detail: "Для новых путешествий", icon: "🧳", color: "#f1c99f" },
+      { name: "НАБОР ЧАЯ", detail: "Уютный подарок", icon: "🍵", color: "#c8dfbd" },
+      { name: "НАУШНИКИ", detail: "Музыка в дороге", icon: "🎧", color: "#e7d2b8" },
+      { name: "ЗОЛОТОЕ ЯБЛОКО", detail: "Сертификат 1000 рублей", icon: "✨", color: "#d7c4e7" }
+    ];
+
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const cx = 350;
+    const cy = 350;
+    const radius = 330;
+    const segment = Math.PI * 2 / prizes.length;
+
+    prizes.forEach((prize, i) => {
+      const start = -Math.PI / 2 + i * segment;
+      const end = start + segment;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, start, end);
+      ctx.closePath();
+      ctx.fillStyle = prize.color;
+      ctx.fill();
+      ctx.lineWidth = 7;
+      ctx.strokeStyle = "#fffaf1";
+      ctx.stroke();
+
+      const mid = start + segment / 2;
+
+      ctx.save();
+      ctx.translate(
+        cx + Math.cos(mid) * 205,
+        cy + Math.sin(mid) * 205
+      );
+      ctx.rotate(mid + Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#244b55";
+
+      ctx.font = "bold 37px Arial";
+      ctx.fillText(prize.icon, 0, -26);
+
+      ctx.font = "bold " +
+        (prize.name.length > 13 ? "19px" : "24px") +
+        " Arial";
+      ctx.fillText(prize.name, 0, 15, 220);
+
+      ctx.font = "17px Arial";
+
+      if (prize.name === "OZON" || prize.name === "ЗОЛОТОЕ ЯБЛОКО") {
+        ctx.fillText("Сертификат", 0, 43);
+        ctx.fillText("1000 рублей", 0, 65);
+      } else {
+        ctx.fillText(prize.detail, 0, 46, 190);
+      }
+
+      ctx.restore();
+    });
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = "#fffaf1";
+    ctx.stroke();
+  </script>
+</body>
+</html>
