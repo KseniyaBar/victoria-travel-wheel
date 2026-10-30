@@ -231,15 +231,15 @@ function drawWheel() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const emojiSize = prizes.length > 8 ? 21 : 25;
-    const textSize = prizes.length > 8 ? 13 : (prizes.length > 6 ? 15 : 17);
-
+    const emojiSize = prizes.length > 8 ? 26 : 32;
+const textSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
+    
     ctx.font = `${emojiSize}px Arial`;
-    ctx.fillText(label.emoji, x, y - 13);
+    ctx.fillText(label.emoji, x, y - 17);
 
-    ctx.fillStyle = '#29464a';
-    ctx.font = `bold ${textSize}px Arial`;
-    ctx.fillText(label.name, x, y + 13, prizes.length > 7 ? 100 : 125);
+ctx.fillStyle = '#29464a';
+ctx.font = `bold ${textSize}px Arial`;
+ctx.fillText(label.name, x, y + 17, prizes.length > 7 ? 110 : 135);
     ctx.restore();
   });
 
