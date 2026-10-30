@@ -139,8 +139,18 @@ const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680pGjhMg_kvKvsrGo';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const colors = ['#f1c47c','#8fc9bd','#f1a58d','#a9b9df','#e6c1d5',
-                '#b7d7a8','#e8b9a5','#a8cbd5','#d9c4e8','#f0d58c'];
+const colors = [
+  '#D8EAE2', // нежный мятный
+  '#F5DDD5', // пудровый персик
+  '#E4DDF0', // лаванда
+  '#F5EACD', // сливочный
+  '#D9E6F2', // небесный
+  '#EBDCE8', // розово-лиловый
+  '#DCE8D1', // фисташковый
+  '#F2E0C5', // песочный
+  '#D5E8E8', // аквамарин
+  '#E9DCE0'  // пыльная роза
+];
 
 const canvas = document.getElementById('wheel');
 const ctx = canvas.getContext('2d');
