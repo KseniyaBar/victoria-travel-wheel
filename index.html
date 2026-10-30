@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -229,6 +230,7 @@ button:disabled {
 }
 
 .thanks {
+  display: none;
   margin-top: 22px;
   color: #668184;
 }
@@ -623,6 +625,8 @@ function showPrize(prizeName, description) {
 
   result.style.display = 'block';
 
+  document.querySelector('.thanks').style.display = 'block';
+
   button.disabled = true;
   button.textContent = 'Подарок уже получен';
 
@@ -658,7 +662,7 @@ async function loadWheelPrizes() {
     throw new Error('Пока нет активных подарков. Обратитесь к Виктории.');
   }
 
-  await document.fonts.load('900 22px "Nunito Sans"');
+  await document.fonts.load('900 22px "Nunito Sans", sans-serif');
 
   center.classList.remove('loading');
 
