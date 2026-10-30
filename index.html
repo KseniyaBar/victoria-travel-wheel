@@ -57,8 +57,8 @@ canvas {
   border-right: 17px solid transparent;
   border-top: 34px solid #d58b43;
   filter: drop-shadow(0 2px 2px #0002);
-}
-.center {
+}.
+  center {
   position: absolute;
   z-index: 1;
   width: 66px;
@@ -70,6 +70,12 @@ canvas {
   left: 50%;
   transform: translate(-50%,-50%);
   box-shadow: 0 2px 8px #0002;
+  transition: opacity .3s ease;
+}
+  
+.center.loading {
+  opacity: 0;
+}
 }
 button {
   border: 0;
