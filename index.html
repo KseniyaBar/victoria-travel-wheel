@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -140,15 +139,9 @@ const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680pGjhMg_kvKvsrGo';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const prizes = [
-  { name: 'OZON', description: 'Сертификат 1000 рублей' },
-  { name: 'ЧЕМОДАН', description: 'Для новых путешествий' },
-  { name: 'НАБОР ЧАЯ', description: 'Уютный подарок' },
-  { name: 'НАУШНИКИ', description: 'Музыка в дороге' },
-  { name: 'ЗОЛОТОЕ ЯБЛОКО', description: 'Сертификат 1000 рублей' }
-];
+const colors = ['#f1c47c','#8fc9bd','#f1a58d','#a9b9df','#e6c1d5',
+                '#b7d7a8','#e8b9a5','#a8cbd5','#d9c4e8','#f0d58c'];
 
-const colors = ['#f1c47c','#8fc9bd','#f1a58d','#a9b9df','#e6c1d5'];
 const canvas = document.getElementById('wheel');
 const ctx = canvas.getContext('2d');
 const button = document.getElementById('spinButton');
@@ -158,40 +151,100 @@ const result = document.getElementById('result');
 const token = new URLSearchParams(location.search).get('token');
 
 let participantName = '';
+let prizes = [];
 let busy = false;
+
+function getField(item, ...keys) {
+  for (const key of keys) {
+    if (item && item[key] !== undefined && item[key] !== null) return item[key];
+  }
+  return '';
+}
+
+// Для сертификатов на колесе показываем общее название,
+// а эмодзи помогает отличить один сертификат от другого.
+function getWheelLabel(prize) {
+  const originalName = String(prize.name || '').trim();
+  const normalized = originalName.toLocaleLowerCase('ru');
+
+  if (normalized.includes('ozon')) {
+    return { name: 'Сертификат', emoji: '🛍️' };
+  }
+  if (normalized.includes('золот') || normalized.includes('golden')) {
+    return { name: 'Сертификат', emoji: '💄' };
+  }
+  if (String(prize.description || '').toLocaleLowerCase('ru').includes('сертификат')) {
+    return { name: 'Сертификат', emoji: prize.emoji || '🎁' };
+  }
+
+  return { name: originalName, emoji: prize.emoji || '🎁' };
+}
+
+function normalizePrize(item) {
+  return {
+    name: String(getField(item, 'name', 'prize_name')),
+    description: String(getField(item, 'description', 'prize_description')),
+    emoji: String(getField(item, 'emoji', 'prize_emoji') || '🎁')
+  };
+}
 
 function drawWheel() {
   const cx = 300, cy = 300, radius = 285;
+  ctx.clearRect(0, 0, 600, 600);
+
+  if (!prizes.length) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#e8f1ef';
+    ctx.fill();
+    ctx.fillStyle = '#668184';
+    ctx.textAlign = 'center';
+    ctx.font = '20px Arial';
+    ctx.fillText('Подарки загружаются', cx, cy);
+    return;
+  }
+
   const angle = Math.PI * 2 / prizes.length;
 
-  ctx.clearRect(0,0,600,600);
-
-  prizes.forEach((prize,i) => {
+  prizes.forEach((prize, i) => {
     const start = -Math.PI / 2 + i * angle;
     const end = start + angle;
 
     ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,radius,start,end);
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, start, end);
     ctx.closePath();
-    ctx.fillStyle = colors[i];
+    ctx.fillStyle = colors[i % colors.length];
     ctx.fill();
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 5;
     ctx.stroke();
 
+    // Текст и эмодзи остаются горизонтальными независимо от положения сектора.
+    const middle = start + angle / 2;
+    const labelRadius = prizes.length <= 5 ? 178 : 190;
+    const x = cx + Math.cos(middle) * labelRadius;
+    const y = cy + Math.sin(middle) * labelRadius;
+    const label = getWheelLabel(prize);
+
     ctx.save();
-    ctx.translate(cx,cy);
-    ctx.rotate(start + angle / 2);
-    ctx.textAlign = 'right';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const emojiSize = prizes.length > 8 ? 21 : 25;
+    const textSize = prizes.length > 8 ? 13 : (prizes.length > 6 ? 15 : 17);
+
+    ctx.font = `${emojiSize}px Arial`;
+    ctx.fillText(label.emoji, x, y - 13);
+
     ctx.fillStyle = '#29464a';
-    ctx.font = 'bold 21px Arial';
-    ctx.fillText(prize.name, radius - 24, 8, 190);
+    ctx.font = `bold ${textSize}px Arial`;
+    ctx.fillText(label.name, x, y + 13, prizes.length > 7 ? 100 : 125);
     ctx.restore();
   });
 
   ctx.beginPath();
-  ctx.arc(cx,cy,radius,0,Math.PI*2);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 7;
   ctx.stroke();
@@ -207,10 +260,71 @@ function showPrize(prizeName, description) {
     'Ваш сюрприз уже определён. Спасибо за участие!';
 }
 
+async function loadWheelPrizes() {
+  const { data, error } = await db.rpc('get_wheel_prizes');
+
+  if (error) {
+    console.error('Ошибка загрузки подарков:', error);
+    throw new Error('Не удалось загрузить список подарков. Обновите страницу или обратитесь к Виктории.');
+  }
+
+  let list = data;
+  if (typeof list === 'string') {
+    try { list = JSON.parse(list); } catch { list = []; }
+  }
+
+  if (!Array.isArray(list)) {
+    throw new Error('Список подарков пришёл в неожиданном формате. Обратитесь к Виктории.');
+  }
+
+  prizes = list.map(normalizePrize).filter(prize => prize.name);
+  if (!prizes.length) {
+    throw new Error('Пока нет активных подарков. Обратитесь к Виктории.');
+  }
+
+  drawWheel();
+}
+
+function findPrizeIndex(data) {
+  const prizeName = String(data.prize || '').trim().toLocaleLowerCase('ru');
+  const description = String(data.description || '').trim().toLocaleLowerCase('ru');
+  const emoji = String(data.emoji || '').trim();
+
+  // Сначала ищем точное совпадение названия и описания — это важно,
+  // если в списке есть несколько одинаковых названий подарков.
+  let index = prizes.findIndex(prize =>
+    prize.name.trim().toLocaleLowerCase('ru') === prizeName &&
+    prize.description.trim().toLocaleLowerCase('ru') === description
+  );
+
+  if (index < 0 && emoji) {
+    index = prizes.findIndex(prize =>
+      prize.name.trim().toLocaleLowerCase('ru') === prizeName &&
+      prize.emoji === emoji
+    );
+  }
+
+  if (index < 0) {
+    index = prizes.findIndex(prize =>
+      prize.name.trim().toLocaleLowerCase('ru') === prizeName
+    );
+  }
+
+  return index;
+}
+
 async function loadParticipant() {
   if (!token) {
     message.textContent = 'Персональная ссылка не найдена. Пожалуйста, обратитесь к Виктории за вашей ссылкой.';
     button.textContent = 'Нет персональной ссылки';
+    return;
+  }
+
+  try {
+    await loadWheelPrizes();
+  } catch (error) {
+    message.textContent = error.message;
+    button.textContent = 'Не удалось загрузить подарки';
     return;
   }
 
@@ -245,7 +359,7 @@ async function loadParticipant() {
 }
 
 async function spin() {
-  if (busy || !token) return;
+  if (busy || !token || !prizes.length) return;
 
   busy = true;
   button.disabled = true;
@@ -277,12 +391,10 @@ async function spin() {
     return;
   }
 
-  const index = prizes.findIndex(p =>
-    p.name.toLocaleLowerCase() === String(data.prize).toLocaleLowerCase()
-  );
+  const index = findPrizeIndex(data);
 
   if (index < 0) {
-    message.textContent = 'Подарок закреплён, но его название не совпадает с настройками колеса. Обратитесь к Виктории.';
+    message.textContent = 'Подарок закреплён, но его не удалось сопоставить с сектором колеса. Результат сохранён — обратитесь к Виктории.';
     button.textContent = 'Результат сохранён';
     busy = false;
     return;
@@ -293,7 +405,8 @@ async function spin() {
   const targetRotation = -Math.PI / 2 - centerAngle;
   const fullTurns = 6 * Math.PI * 2;
 
-  canvas.style.transform = 'rotate(' + (fullTurns + targetRotation) + 'rad)';
+  canvas.style.transform =
+    'rotate(' + (fullTurns + targetRotation) + 'rad)';
 
   setTimeout(() => {
     showPrize(data.prize, data.description);
