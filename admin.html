@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -84,6 +83,7 @@ button.small { padding: 8px 11px; font-size: 12px; }
 
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
+
 th, td {
   padding: 12px 10px;
   border-bottom: 1px solid #e7eeee;
@@ -91,6 +91,7 @@ th, td {
   font-size: 14px;
   vertical-align: top;
 }
+
 th { color: #567174; }
 
 .link {
@@ -213,7 +214,6 @@ th { color: #567174; }
       <div class="tabs">
         <button class="active" data-tab="participantsTab">Участники</button>
         <button data-tab="prizesTab">Подарки</button>
-        <button data-tab="drawTab">Новый розыгрыш</button>
       </div>
 
       <!-- УЧАСТНИКИ -->
@@ -252,6 +252,18 @@ th { color: #567174; }
           </table>
         </div>
         <div id="participantsListMessage" class="message"></div>
+
+        <div class="notice warning danger-zone" style="margin-top:22px">
+          <h3 style="margin:0 0 8px">Очистить текущий розыгрыш</h3>
+          <p style="margin:0 0 12px">
+            Удалятся все участники, их персональные ссылки и результаты.
+            Список подарков и их настройки сохранятся. Старые ссылки перестанут работать.
+          </p>
+          <button class="danger" id="resetDrawButton">
+            Удалить всех участников
+          </button>
+          <div id="resetMessage" class="message"></div>
+        </div>
       </div>
 
       <!-- ПОДАРКИ -->
@@ -295,32 +307,6 @@ th { color: #567174; }
           <p class="muted">Загрузка подарков...</p>
         </div>
         <div id="prizeListMessage" class="message"></div>
-      </div>
-
-      <!-- НОВЫЙ РОЗЫГРЫШ -->
-      <div id="drawTab" class="tab-content">
-        <h2>Подготовка нового розыгрыша</h2>
-        <p>
-          Здесь можно удалить всех участников и подготовить сайт
-          к следующему розыгрышу.
-        </p>
-
-        <div class="notice warning">
-          Внимание! Очистка удалит всех участников, персональные ссылки
-          и результаты. Список подарков останется.
-        </div>
-
-        <div class="danger-zone panel">
-          <h3>Очистить текущий розыгрыш</h3>
-          <p class="muted">
-            Все подарки снова станут доступными. Старые персональные ссылки
-            перестанут работать.
-          </p>
-          <button class="danger" id="resetDrawButton">
-            Удалить всех участников и сбросить розыгрыш
-          </button>
-          <div id="resetMessage" class="message"></div>
-        </div>
       </div>
     </section>
   </div>
@@ -719,7 +705,7 @@ $('refreshPrizes').addEventListener('click', loadPrizes);
 
 
 // ==========================================
-// НОВЫЙ РОЗЫГРЫШ
+// ОЧИСТКА ТЕКУЩЕГО РОЗЫГРЫША
 // ==========================================
 
 $('resetDrawButton').addEventListener('click', async () => {
@@ -741,9 +727,8 @@ $('resetDrawButton').addEventListener('click', async () => {
 
   const { data, error } = await supabaseClient.rpc('reset_draw');
 
-  $('resetDrawButton').disabled = false;
-
   if (error) {
+    $('resetDrawButton').disabled = false;
     showMessage('resetMessage',
       'Не удалось очистить розыгрыш: ' + error.message, 'error');
     return;
@@ -755,6 +740,7 @@ $('resetDrawButton').addEventListener('click', async () => {
 
   await loadParticipants();
   await loadPrizes();
+  $('resetDrawButton').disabled = false;
 });
 
 
