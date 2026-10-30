@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Админ-панель — Виктория Герасимова</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;padding:24px 14px;background:#edf5f3;color:#173b4b;font-family:Arial,sans-serif}
+    main{max-width:850px;margin:auto;background:white;padding:25px;border-radius:20px}
+    h1{font-family:Georgia,serif;color:#17485a}
+    h2{font-size:17px;margin-top:28px}
+    p{color:#668087;font-size:13px;line-height:1.5}
+    input{padding:12px;border:1px solid #cbdedb;border-radius:9px;font-size:14px;width:100%;min-width:0}
+    button{border:0;border-radius:9px;padding:12px 17px;background:#477f83;color:white;font-weight:bold;cursor:pointer}
+    button:disabled{opacity:.5}
+    .form{display:flex;gap:9px}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+    th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #e4eeeb}
+    th{color:#65817f;font-size:11px;text-transform:uppercase}
+    .status{color:#54816d}
+    .empty{padding:20px;text-align:center;color:#8aa0a0}
+    .notice{padding:13px;background:#fff5e9;border-radius:10px;color:#8b6748;font-size:12px;line-height:1.5;margin-top:20px}
+    @media(max-width:520px){main{padding:17px}.form{flex-direction:column}button{width:100%}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Панель Виктории</h1>
+  <p>Управление участниками розыгрыша «Колесо путешествий»</p>
+
+  <h2>Добавить клиента</h2>
+  <div class="form">
+    <input id="clientName" maxlength="60" placeholder="Имя или никнейм клиента">
+    <button id="addClient">Добавить</button>
+  </div>
+
+  <h2>Участники розыгрыша</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Клиент</th>
+          <th>Подарок</th>
+          <th>Статус</th>
+          <th>Ссылка</th>
+        </tr>
+      </thead>
+      <tbody id="clients">
+        <tr><td colspan="4" class="empty">Загрузка участников...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="notice">
+    Демонстрационный интерфейс. Подключение базы данных, авторизацию администратора и генерацию персональных ссылок добавим перед публикацией. Не используйте эту страницу для хранения реальных данных клиентов до настройки защиты.
+  </div>
+</main>
+
+<script>
+  const input = document.getElementById('clientName');
+  const button = document.getElementById('addClient');
+  const table = document.getElementById('clients');
+
+  // Временный интерфейс: данные пока не сохраняются.
+  const participants = [];
+
+  function render() {
+    table.replaceChildren();
+
+    if (!participants.length) {
+      const row = table.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 4;
+      cell.className = 'empty';
+      cell.textContent = 'Участников пока нет';
+      return;
+    }
+
+    participants.forEach(person => {
+      const row = table.insertRow();
+      [person.name, '—', 'Ожидает', 'Будет создана'].forEach(value => {
+        const cell = row.insertCell();
+        cell.textContent = value;
+      });
+    });
+  }
+
+  button.addEventListener('click', () => {
+    const name = input.value.trim();
+    if (!name) {
+      input.focus();
+      return;
+    }
+
+    if (participants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+      alert('Такой участник уже есть в списке');
+      return;
+    }
+
+    participants.push({name});
+    input.value = '';
+    render();
+  });
+
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') button.click();
+  });
+
+  render();
+</script>
+</body>
+</html>
