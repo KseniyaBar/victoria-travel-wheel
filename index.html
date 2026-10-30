@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -477,51 +476,55 @@ function normalizePrize(item) {
   };
 }
 
-/* Перенос названия по словам с подгонкой размера */
+/* Перенос названий только по целым словам */
 function wrapCanvasText(text, fontSize, maxWidth) {
-  ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
-
   const words = text.split(/\s+/).filter(Boolean);
+  let fittedFontSize = fontSize;
+
+  // Если самое длинное слово не помещается, уменьшаем шрифт.
+  ctx.font = `900 ${fittedFontSize}px "Nunito Sans", sans-serif`;
+
+  const longestWordWidth = Math.max(
+    0,
+    ...words.map(word => ctx.measureText(word).width)
+  );
+
+  if (longestWordWidth > maxWidth) {
+    fittedFontSize = Math.max(
+      7,
+      Math.floor(fittedFontSize * maxWidth / longestWordWidth * 0.98)
+    );
+  }
+
+  ctx.font = `900 ${fittedFontSize}px "Nunito Sans", sans-serif`;
+
   const lines = [];
   let currentLine = '';
 
   for (const word of words) {
-    const testLine = currentLine ? currentLine + ' ' + word : word;
+    const testLine = currentLine
+      ? currentLine + ' ' + word
+      : word;
 
     if (ctx.measureText(testLine).width <= maxWidth) {
       currentLine = testLine;
-      continue;
-    }
-
-    if (currentLine) {
-      lines.push(currentLine);
-      currentLine = '';
-    }
-
-    /* Если даже отдельное слово слишком длинное — делим его по буквам */
-    if (ctx.measureText(word).width > maxWidth) {
-      let part = '';
-
-      for (const char of Array.from(word)) {
-        const testPart = part + char;
-
-        if (ctx.measureText(testPart).width <= maxWidth || !part) {
-          part = testPart;
-        } else {
-          lines.push(part);
-          part = char;
-        }
+    } else {
+      if (currentLine) {
+        lines.push(currentLine);
       }
 
-      currentLine = part;
-    } else {
       currentLine = word;
     }
   }
 
-  if (currentLine) lines.push(currentLine);
+  if (currentLine) {
+    lines.push(currentLine);
+  }
 
-  return lines;
+  return {
+    lines,
+    fontSize: fittedFontSize
+  };
 }
 
 function drawWheel() {
@@ -579,23 +582,20 @@ function drawWheel() {
     const maxWidth = prizes.length > 7 ? 110 : 135;
     const maxLines = 3;
 
-    let fontSize = baseTextSize;
-    let lines = wrapCanvasText(label.name, fontSize, maxWidth);
+    let layout = wrapCanvasText(label.name, baseTextSize, maxWidth);
 
-    while (lines.length > maxLines && fontSize > 12) {
-      fontSize--;
-      lines = wrapCanvasText(label.name, fontSize, maxWidth);
+    while (layout.lines.length > maxLines && layout.fontSize > 12) {
+      layout = wrapCanvasText(label.name, layout.fontSize - 1, maxWidth);
     }
 
-    /* Если название всё ещё длинное, разрешаем дополнительную строку */
+    const fontSize = layout.fontSize;
+    const lines = layout.lines;
+
     const totalHeight = lines.length * fontSize * 1.05;
     const lineHeight = fontSize * 1.05;
     const startY = y + 13 - totalHeight / 2;
 
     ctx.fillStyle = '#29464a';
-    ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
-
-    /* Эмодзи располагается над многострочным названием */
     ctx.font = `${emojiSize}px Arial`;
     ctx.fillText(label.emoji, x, startY - emojiSize * 0.9);
 
