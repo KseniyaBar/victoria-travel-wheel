@@ -437,6 +437,7 @@ let participantName = '';
 let prizes = [];
 let busy = false;
 
+/* Получение значения из объекта */
 function getField(item, ...keys) {
   for (const key of keys) {
     if (item && item[key] !== undefined && item[key] !== null) {
@@ -446,24 +447,10 @@ function getField(item, ...keys) {
   return '';
 }
 
+/* Название сектора берётся напрямую из админки */
 function getWheelLabel(prize) {
-  const originalName = String(prize.name || '').trim();
-  const normalized = originalName.toLocaleLowerCase('ru');
-
-  if (normalized.includes('ozon')) {
-    return { name: 'Сертификат', emoji: '🛍️' };
-  }
-
-  if (normalized.includes('золот') || normalized.includes('golden')) {
-    return { name: 'Сертификат', emoji: '💄' };
-  }
-
-  if (String(prize.description || '').toLocaleLowerCase('ru').includes('сертификат')) {
-    return { name: 'Сертификат', emoji: prize.emoji || '🎁' };
-  }
-
   return {
-    name: originalName,
+    name: String(prize.name || '').trim(),
     emoji: prize.emoji || '🎁'
   };
 }
@@ -481,7 +468,6 @@ function wrapCanvasText(text, fontSize, maxWidth) {
   const words = text.split(/\s+/).filter(Boolean);
   let fittedFontSize = fontSize;
 
-  // Если самое длинное слово не помещается, уменьшаем шрифт.
   ctx.font = `900 ${fittedFontSize}px "Nunito Sans", sans-serif`;
 
   const longestWordWidth = Math.max(
@@ -554,6 +540,7 @@ function drawWheel() {
     const start = -Math.PI / 2 + i * angle;
     const end = start + angle;
 
+    /* Рисуем сектор */
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, radius, start, end);
@@ -574,6 +561,16 @@ function drawWheel() {
     const label = getWheelLabel(prize);
 
     ctx.save();
+
+    /*
+      Поворачиваем систему координат подписи относительно центра.
+      Верх букв направлен к внешнему краю колеса,
+      низ букв — к центру.
+      При вращении колеса надписи вращаются вместе с ним.
+    */
+    ctx.translate(x, y);
+    ctx.rotate(middle + Math.PI / 2);
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -593,22 +590,26 @@ function drawWheel() {
 
     const totalHeight = lines.length * fontSize * 1.05;
     const lineHeight = fontSize * 1.05;
-    const startY = y + 13 - totalHeight / 2;
 
+    const startY = 13 - totalHeight / 2;
+
+    /* Эмодзи находится ближе к внешнему краю сектора */
     ctx.fillStyle = '#29464a';
     ctx.font = `${emojiSize}px Arial`;
-    ctx.fillText(label.emoji, x, startY - emojiSize * 0.9);
+    ctx.fillText(label.emoji, 0, startY - emojiSize * 0.9);
 
+    /* Название подарка */
     ctx.fillStyle = '#29464a';
     ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
 
     lines.forEach((line, index) => {
-      ctx.fillText(line, x, startY + index * lineHeight);
+      ctx.fillText(line, 0, startY + index * lineHeight);
     });
 
     ctx.restore();
   });
 
+  /* Внешняя обводка колеса */
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.strokeStyle = '#fff';
