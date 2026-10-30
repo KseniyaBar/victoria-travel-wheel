@@ -370,14 +370,58 @@ function drawWheel() {
     ctx.textBaseline = 'middle';
 
     const emojiSize = prizes.length > 8 ? 26 : 32;
-    const textSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
+const textSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
 
-    ctx.font = `${emojiSize}px Arial`;
-    ctx.fillText(label.emoji, x, y - 17);
+ctx.font = `${emojiSize}px Arial`;
+ctx.fillText(label.emoji, x, y - 25);
 
-    ctx.fillStyle = '#29464a';
-    ctx.font = `900 ${textSize}px "Nunito Sans", sans-serif`;
-    ctx.fillText(label.name, x, y + 17, prizes.length > 7 ? 110 : 135);
+ctx.fillStyle = '#29464a';
+
+const maxWidth = prizes.length > 7 ? 110 : 135;
+const maxLines = 3;
+const lineHeight = textSize * 1.05;
+
+function wrapText(text, fontSize) {
+  ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
+
+  const words = text.split(/\s+/);
+  const lines = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? currentLine + ' ' + word : word;
+
+    if (ctx.measureText(testLine).width <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+
+  if (currentLine) lines.push(currentLine);
+
+  return lines;
+}
+
+let fontSize = textSize;
+let lines = wrapText(label.name, fontSize);
+
+while (lines.length > maxLines && fontSize > 12) {
+  fontSize--;
+  lines = wrapText(label.name, fontSize);
+}
+
+ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+
+const totalHeight = lines.length * fontSize * 1.05;
+const startY = y + 8 - totalHeight / 2;
+
+lines.forEach((line, index) => {
+  ctx.fillText(line, x, startY + index * fontSize * 1.05);
+});
 
     ctx.restore();
   });
