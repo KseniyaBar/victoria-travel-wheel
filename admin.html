@@ -2,326 +2,828 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Админ-панель | Виктория Герасимова</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 30px 16px;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      color: #263b43;
-      background: linear-gradient(135deg, #e7f6f3, #f8f3e9);
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .panel {
-      background: white;
-      padding: 28px;
-      border-radius: 20px;
-      box-shadow: 0 8px 30px #24444b12;
-      margin-bottom: 20px;
-    }
-    h1 { margin-top: 0; color: #245b61; }
-    h2 { color: #245b61; font-size: 21px; }
-    input {
-      width: 100%;
-      padding: 13px;
-      margin: 7px 0 14px;
-      border: 1px solid #ccd9d7;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-    button {
-      border: 0;
-      border-radius: 10px;
-      padding: 13px 20px;
-      background: #287c78;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-    }
-    button:hover { background: #206763; }
-    button.secondary { background: #71878a; }
-    button:disabled { opacity: .5; cursor: wait; }
-    .hidden { display: none !important; }
-    .muted { color: #718184; font-size: 14px; }
-    .message { margin-top: 12px; white-space: pre-wrap; }
-    .error { color: #b33b3b; }
-    .success { color: #24734c; }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #e7eeee;
-      text-align: left;
-      font-size: 14px;
-    }
-    th { color: #567174; }
-    .link {
-      display: inline-block;
-      max-width: 260px;
-      overflow-wrap: anywhere;
-      color: #247c78;
-    }
-    .copy-btn {
-      padding: 7px 10px;
-      margin-top: 5px;
-      font-size: 12px;
-    }
-    @media (max-width: 600px) {
-      .panel { padding: 20px 16px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель | Виктория Герасимова</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 28px 16px;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: #263b43;
+  background: linear-gradient(135deg, #e7f6f3, #f8f3e9);
+}
+
+.container { max-width: 1000px; margin: auto; }
+
+.panel {
+  background: white;
+  padding: 26px;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px #24444b12;
+  margin-bottom: 20px;
+}
+
+h1 { margin-top: 0; color: #245b61; }
+h2 { color: #245b61; font-size: 21px; margin-top: 0; }
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin: 7px 0 14px;
+  border: 1px solid #ccd9d7;
+  border-radius: 10px;
+  font-size: 16px;
+  background: white;
+}
+
+label { font-size: 14px; font-weight: 600; }
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 17px;
+  background: #287c78;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover { background: #206763; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+button.secondary { background: #71878a; }
+button.danger { background: #b94b4b; }
+button.danger:hover { background: #963b3b; }
+button.small { padding: 8px 11px; font-size: 12px; }
+
+.hidden { display: none !important; }
+.muted { color: #718184; font-size: 13px; }
+.message { margin-top: 12px; white-space: pre-wrap; font-size: 14px; }
+.error { color: #b33b3b; }
+.success { color: #24734c; }
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e7eeee;
+  text-align: left;
+  font-size: 14px;
+  vertical-align: top;
+}
+th { color: #567174; }
+
+.link {
+  display: inline-block;
+  max-width: 240px;
+  overflow-wrap: anywhere;
+  color: #247c78;
+}
+
+.copy-btn { padding: 7px 10px; margin-top: 5px; font-size: 12px; }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.tabs button { background: #e8f1ef; color: #245b61; }
+.tabs button.active { background: #287c78; color: white; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.prize-list { display: grid; gap: 12px; }
+
+.prize-card {
+  border: 1px solid #e1ebea;
+  border-radius: 13px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.prize-info { flex: 1; min-width: 180px; }
+.prize-emoji { font-size: 27px; margin-right: 8px; }
+.prize-name { font-weight: 700; color: #245b61; }
+.prize-description { margin-top: 5px; font-size: 13px; color: #718184; }
+
+.status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  background: #e8f5ed;
+  color: #24734c;
+  margin-top: 7px;
+}
+
+.status.claimed { background: #fff1e6; color: #a65a25; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 0 12px;
+}
+
+.notice {
+  background: #f1f7f6;
+  border-radius: 12px;
+  padding: 13px;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notice.warning {
+  background: #fff5e9;
+  color: #89551e;
+}
+
+.danger-zone {
+  border: 1px solid #f0dada;
+  background: #fffafa;
+}
+
+@media (max-width: 600px) {
+  .panel { padding: 20px 15px; }
+  .form-grid { grid-template-columns: 1fr; }
+  th, td { padding: 10px 7px; }
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
+<div class="container">
+
+  <section class="panel">
+    <h1>Панель управления</h1>
+    <p class="muted">Турагент Виктория Герасимова · Колесо путешествий</p>
+
+    <div id="loginBlock">
+      <h2>Вход для администратора</h2>
+      <form id="loginForm">
+        <label for="email">Электронная почта</label>
+        <input id="email" type="email" required autocomplete="username">
+
+        <label for="password">Пароль</label>
+        <input id="password" type="password" required autocomplete="current-password">
+
+        <button type="submit" id="loginButton">Войти</button>
+      </form>
+      <div id="loginMessage" class="message"></div>
+    </div>
+
+    <div id="adminBlock" class="hidden">
+      <div class="topbar">
+        <p id="userEmail" class="muted"></p>
+        <button class="secondary" id="logoutButton">Выйти</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="workspace" class="hidden">
 
     <section class="panel">
-      <h1>Панель управления</h1>
-      <p class="muted">Турагент Виктория Герасимова · Колесо путешествий</p>
-
-      <div id="loginBlock">
-        <h2>Вход для администратора</h2>
-        <form id="loginForm">
-          <label for="email">Электронная почта</label>
-          <input id="email" type="email" required autocomplete="username">
-
-          <label for="password">Пароль</label>
-          <input id="password" type="password" required autocomplete="current-password">
-
-          <button type="submit" id="loginButton">Войти</button>
-        </form>
-        <div id="loginMessage" class="message"></div>
+      <div class="tabs">
+        <button class="active" data-tab="participantsTab">Участники</button>
+        <button data-tab="prizesTab">Подарки</button>
+        <button data-tab="drawTab">Новый розыгрыш</button>
       </div>
 
-      <div id="adminBlock" class="hidden">
+      <!-- УЧАСТНИКИ -->
+      <div id="participantsTab" class="tab-content active">
         <div class="topbar">
-          <p id="userEmail" class="muted"></p>
-          <button class="secondary" id="logoutButton">Выйти</button>
+          <h2>Участники</h2>
+          <button class="secondary" id="refreshParticipants">Обновить</button>
         </div>
-      </div>
-    </section>
 
-    <section id="workspace" class="hidden">
-      <div class="panel">
-        <h2>Добавить участника</h2>
-        <form id="addForm">
+        <form id="addParticipantForm">
           <label for="participantName">Имя или ник клиента</label>
           <input id="participantName" type="text"
-                 placeholder="Например, Анна (@anna)" maxlength="100" required>
-          <button type="submit" id="addButton">Добавить участника</button>
+            placeholder="Например, Анна (@anna)" maxlength="100" required>
+          <button type="submit" id="addParticipantButton">Добавить участника</button>
         </form>
-        <div id="addMessage" class="message"></div>
-      </div>
+        <div id="participantMessage" class="message"></div>
 
-      <div class="panel">
-        <div class="topbar">
-          <h2>Участники и подарки</h2>
-          <button class="secondary" id="refreshButton">Обновить</button>
+        <div class="notice">
+          У каждого участника своя персональная ссылка. После получения подарка
+          повторное открытие ссылки покажет уже выигранный подарок.
         </div>
-        <p class="muted">Персональную ссылку можно отправить клиенту в личные сообщения.</p>
+
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Участник</th>
                 <th>Подарок</th>
-                <th>Ссылка</th>
+                <th>Персональная ссылка</th>
+                <th>Действия</th>
               </tr>
             </thead>
             <tbody id="participantsTable">
-              <tr><td colspan="3">Загрузка...</td></tr>
+              <tr><td colspan="4">Загрузка...</td></tr>
             </tbody>
           </table>
         </div>
-        <div id="listMessage" class="message"></div>
+        <div id="participantsListMessage" class="message"></div>
+      </div>
+
+      <!-- ПОДАРКИ -->
+      <div id="prizesTab" class="tab-content">
+        <div class="topbar">
+          <h2>Подарки для розыгрыша</h2>
+          <button class="secondary" id="refreshPrizes">Обновить</button>
+        </div>
+
+        <div id="prizeLockNotice" class="notice warning hidden">
+          В текущем розыгрыше уже есть выданные подарки.
+          Чтобы изменить список, сначала очистите текущий розыгрыш.
+        </div>
+
+        <h3>Добавить подарок</h3>
+        <form id="addPrizeForm">
+          <div class="form-grid">
+            <div>
+              <label for="newPrizeEmoji">Эмодзи</label>
+              <input id="newPrizeEmoji" type="text" value="🎁"
+                maxlength="12" required>
+            </div>
+            <div>
+              <label for="newPrizeName">Название на колесе</label>
+              <input id="newPrizeName" type="text"
+                placeholder="Например, Сертификат" maxlength="100" required>
+            </div>
+          </div>
+
+          <label for="newPrizeDescription">Полное описание подарка</label>
+          <input id="newPrizeDescription" type="text"
+            placeholder="Например, Сертификат Ozon на 1000 рублей"
+            maxlength="300" required>
+
+          <button type="submit" id="addPrizeButton">Добавить подарок</button>
+        </form>
+        <div id="prizeMessage" class="message"></div>
+
+        <h3 style="margin-top:25px">Список подарков</h3>
+        <div id="prizeList" class="prize-list">
+          <p class="muted">Загрузка подарков...</p>
+        </div>
+        <div id="prizeListMessage" class="message"></div>
+      </div>
+
+      <!-- НОВЫЙ РОЗЫГРЫШ -->
+      <div id="drawTab" class="tab-content">
+        <h2>Подготовка нового розыгрыша</h2>
+        <p>
+          Здесь можно удалить всех участников и подготовить сайт
+          к следующему розыгрышу.
+        </p>
+
+        <div class="notice warning">
+          Внимание! Очистка удалит всех участников, персональные ссылки
+          и результаты. Список подарков останется.
+        </div>
+
+        <div class="danger-zone panel">
+          <h3>Очистить текущий розыгрыш</h3>
+          <p class="muted">
+            Все подарки снова станут доступными. Старые персональные ссылки
+            перестанут работать.
+          </p>
+          <button class="danger" id="resetDrawButton">
+            Удалить всех участников и сбросить розыгрыш
+          </button>
+          <div id="resetMessage" class="message"></div>
+        </div>
       </div>
     </section>
   </div>
+</div>
+
+<!-- ОКНО РЕДАКТИРОВАНИЯ ПОДАРКА -->
+<div id="editOverlay" class="hidden" style="
+  position:fixed; inset:0; background:#0008; z-index:10;
+  display:flex; align-items:center; justify-content:center; padding:16px;">
+  <div class="panel" style="width:100%; max-width:480px; margin:0;">
+    <h2>Редактировать подарок</h2>
+    <form id="editPrizeForm">
+      <input type="hidden" id="editPrizeId">
+
+      <label for="editPrizeEmoji">Эмодзи</label>
+      <input id="editPrizeEmoji" maxlength="12" required>
+
+      <label for="editPrizeName">Название на колесе</label>
+      <input id="editPrizeName" maxlength="100" required>
+
+      <label for="editPrizeDescription">Полное описание</label>
+      <input id="editPrizeDescription" maxlength="300" required>
+
+      <div class="actions">
+        <button type="submit" id="savePrizeButton">Сохранить</button>
+        <button type="button" class="secondary" id="cancelEditButton">Отмена</button>
+      </div>
+    </form>
+    <div id="editMessage" class="message"></div>
+  </div>
+</div>
 
 <script>
-  const SUPABASE_URL = 'https://qvlxuzvltcqjxlsqboip.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680pGjhMg_kvKvsrGo';
+const SUPABASE_URL = 'https://qvlxuzvltcqjxlsqboip.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680pGjhMg_kvKvsrGo';
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-  const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-  function showMessage(id, text, type = '') {
-    const el = $(id);
-    el.textContent = text || '';
-    el.className = 'message ' + type;
-  }
+let participantsCache = [];
+let prizesCache = [];
 
-  function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, char => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    })[char]);
-  }
+function showMessage(id, text, type = '') {
+  const el = $(id);
+  el.textContent = text || '';
+  el.className = 'message ' + type;
+}
 
-  function getRows(data) {
-    if (Array.isArray(data)) return data;
-    if (data && Array.isArray(data.participants)) return data.participants;
-    if (data && typeof data === 'object') return [data];
-    return [];
-  }
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  })[char]);
+}
 
-  async function loadParticipants() {
-    $('participantsTable').innerHTML =
-      '<tr><td colspan="3">Загрузка...</td></tr>';
-    showMessage('listMessage', '');
-
-    const { data, error } = await supabaseClient.rpc('list_participants');
-
-    if (error) {
-      $('participantsTable').innerHTML = '';
-      showMessage('listMessage', 'Не удалось загрузить участников: ' + error.message, 'error');
-      return;
-    }
-
-    const rows = getRows(data);
-
-    if (!rows.length) {
-      $('participantsTable').innerHTML =
-        '<tr><td colspan="3">Участников пока нет.</td></tr>';
-      return;
-    }
-
-    $('participantsTable').innerHTML = rows.map(row => {
-      const name = row.name ?? row.participant_name ?? 'Без имени';
-      const prize = row.prize ?? row.prize_name ?? 'Ещё не разыгран';
-      const description = row.description ?? row.prize_description ?? '';
-      const token = row.token ?? row.participant_token ?? '';
-
-      const link = token
-        ? new URL('/?token=' + encodeURIComponent(token), window.location.origin).href
-        : '';
-
-      return `
-        <tr>
-          <td>${escapeHtml(name)}</td>
-          <td>${escapeHtml(prize)}${description ? '<br><span class="muted">' + escapeHtml(description) + '</span>' : ''}</td>
-          <td>
-            ${link
-              ? `<a class="link" href="${escapeHtml(link)}" target="_blank" rel="noopener">Открыть ссылку</a><br>
-                 <button class="copy-btn" data-copy="${escapeHtml(link)}">Копировать</button>`
-              : '<span class="muted">Ссылка не найдена</span>'}
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    document.querySelectorAll('[data-copy]').forEach(button => {
-      button.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(button.dataset.copy);
-          button.textContent = 'Скопировано!';
-        } catch {
-          showMessage('listMessage', 'Не удалось скопировать ссылку. Откройте её и скопируйте вручную.', 'error');
-        }
-      });
-    });
-  }
-
-  async function checkSession() {
-    const { data } = await supabaseClient.auth.getSession();
-    if (data.session) {
-      await showAdmin(data.session.user);
-    }
-  }
-
-  async function showAdmin(user) {
-    $('loginBlock').classList.add('hidden');
-    $('adminBlock').classList.remove('hidden');
-    $('workspace').classList.remove('hidden');
-    $('userEmail').textContent = 'Вы вошли: ' + user.email;
-    await loadParticipants();
-  }
-
-  $('loginForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    $('loginButton').disabled = true;
-    showMessage('loginMessage', 'Входим...');
-
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: $('email').value.trim(),
-      password: $('password').value
-    });
-
-    $('loginButton').disabled = false;
-
-    if (error) {
-      showMessage('loginMessage', 'Ошибка входа: ' + error.message, 'error');
-      return;
-    }
-
-    await showAdmin(data.user);
-    showMessage('loginMessage', '');
+function setTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.toggle('active', tab.id === tabId);
   });
 
-  $('logoutButton').addEventListener('click', async () => {
-    await supabaseClient.auth.signOut();
+  document.querySelectorAll('[data-tab]').forEach(button => {
+    button.classList.toggle('active', button.dataset.tab === tabId);
+  });
+}
+
+document.querySelectorAll('[data-tab]').forEach(button => {
+  button.addEventListener('click', () => setTab(button.dataset.tab));
+});
+
+function getLink(token) {
+  return new URL('/?token=' + encodeURIComponent(token), window.location.origin).href;
+}
+
+async function copyText(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const oldText = button.textContent;
+    button.textContent = 'Скопировано!';
+    setTimeout(() => button.textContent = oldText, 1500);
+  } catch {
+    alert('Не удалось скопировать ссылку. Откройте её и скопируйте вручную.');
+  }
+}
+
+// ==========================================
+// УЧАСТНИКИ
+// ==========================================
+
+async function loadParticipants() {
+  $('participantsTable').innerHTML =
+    '<tr><td colspan="4">Загрузка...</td></tr>';
+  showMessage('participantsListMessage', '');
+
+  const { data, error } = await supabaseClient.rpc('list_participants');
+
+  if (error) {
+    $('participantsTable').innerHTML = '';
+    showMessage('participantsListMessage',
+      'Ошибка загрузки: ' + error.message, 'error');
+    return;
+  }
+
+  participantsCache = Array.isArray(data) ? data : [];
+
+  if (!participantsCache.length) {
+    $('participantsTable').innerHTML =
+      '<tr><td colspan="4">Участников пока нет.</td></tr>';
+    return;
+  }
+
+  $('participantsTable').innerHTML = participantsCache.map(row => {
+    const id = row.participant_id;
+    const name = row.participant_name ?? 'Без имени';
+    const prize = row.prize_name ?? 'Ещё не разыгран';
+    const description = row.prize_description ?? '';
+    const token = row.participant_token ?? '';
+    const link = token ? getLink(token) : '';
+
+    return `
+      <tr>
+        <td>${escapeHtml(name)}</td>
+        <td>
+          ${escapeHtml(prize)}
+          ${description
+            ? `<br><span class="muted">${escapeHtml(description)}</span>`
+            : ''}
+        </td>
+        <td>
+          ${link
+            ? `<a class="link" href="${escapeHtml(link)}"
+                 target="_blank" rel="noopener">Открыть ссылку</a><br>
+               <button class="copy-btn" data-copy="${escapeHtml(link)}">
+                 Копировать
+               </button>`
+            : '<span class="muted">Ссылка не найдена</span>'}
+        </td>
+        <td>
+          <button class="small danger" data-delete-participant="${escapeHtml(id)}">
+            Удалить
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('[data-copy]').forEach(button => {
+    button.addEventListener('click', () =>
+      copyText(button.dataset.copy, button));
+  });
+
+  document.querySelectorAll('[data-delete-participant]').forEach(button => {
+    button.addEventListener('click', () =>
+      deleteParticipant(button.dataset.deleteParticipant));
+  });
+}
+
+async function deleteParticipant(id) {
+  const participant = participantsCache.find(row => row.participant_id === id);
+  const name = participant?.participant_name ?? 'этого участника';
+
+  if (!confirm(
+    `Удалить участника «${name}»?\n\n` +
+    'Если ему уже выпал подарок, подарок вернётся в свободные.'
+  )) return;
+
+  const { error } = await supabaseClient.rpc('delete_participant', {
+    p_id: id
+  });
+
+  if (error) {
+    showMessage('participantsListMessage',
+      'Не удалось удалить участника: ' + error.message, 'error');
+    return;
+  }
+
+  showMessage('participantsListMessage',
+    'Участник удалён. Его подарок освобождён.', 'success');
+
+  await loadParticipants();
+  await loadPrizes();
+}
+
+$('addParticipantForm').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const name = $('participantName').value.trim();
+  if (!name) return;
+
+  $('addParticipantButton').disabled = true;
+  showMessage('participantMessage', 'Добавляем участника...');
+
+  const { error } = await supabaseClient.rpc('add_participant', {
+    p_name: name
+  });
+
+  $('addParticipantButton').disabled = false;
+
+  if (error) {
+    showMessage('participantMessage',
+      'Не удалось добавить участника: ' + error.message, 'error');
+    return;
+  }
+
+  $('participantName').value = '';
+  showMessage('participantMessage',
+    'Участник добавлен! Персональная ссылка появилась в таблице.', 'success');
+
+  await loadParticipants();
+});
+
+$('refreshParticipants').addEventListener('click', loadParticipants);
+
+
+// ==========================================
+// ПОДАРКИ
+// ==========================================
+
+async function loadPrizes() {
+  $('prizeList').innerHTML = '<p class="muted">Загрузка подарков...</p>';
+  showMessage('prizeListMessage', '');
+
+  const { data, error } = await supabaseClient.rpc('list_prizes');
+
+  if (error) {
+    $('prizeList').innerHTML = '';
+    showMessage('prizeListMessage',
+      'Ошибка загрузки подарков: ' + error.message, 'error');
+    return;
+  }
+
+  prizesCache = Array.isArray(data) ? data : [];
+
+  const hasClaimed = prizesCache.some(prize => prize.is_claimed);
+  $('prizeLockNotice').classList.toggle('hidden', !hasClaimed);
+
+  $('addPrizeButton').disabled = hasClaimed;
+
+  if (!prizesCache.length) {
+    $('prizeList').innerHTML = '<p class="muted">Подарков пока нет.</p>';
+    return;
+  }
+
+  $('prizeList').innerHTML = prizesCache.map(prize => `
+    <div class="prize-card">
+      <div class="prize-info">
+        <div>
+          <span class="prize-emoji">${escapeHtml(prize.prize_emoji)}</span>
+          <span class="prize-name">${escapeHtml(prize.prize_name)}</span>
+        </div>
+        <div class="prize-description">
+          ${escapeHtml(prize.prize_description)}
+        </div>
+        <span class="status ${prize.is_claimed ? 'claimed' : ''}">
+          ${prize.is_claimed ? 'Уже разыгран' : 'Свободен'}
+        </span>
+      </div>
+      <div class="actions">
+        <button class="small secondary"
+          data-edit-prize="${escapeHtml(prize.prize_id)}"
+          ${hasClaimed ? 'disabled' : ''}>Изменить</button>
+        <button class="small danger"
+          data-delete-prize="${escapeHtml(prize.prize_id)}"
+          ${hasClaimed ? 'disabled' : ''}>Удалить</button>
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('[data-edit-prize]').forEach(button => {
+    button.addEventListener('click', () =>
+      openEditPrize(button.dataset.editPrize));
+  });
+
+  document.querySelectorAll('[data-delete-prize]').forEach(button => {
+    button.addEventListener('click', () =>
+      deletePrize(button.dataset.deletePrize));
+  });
+}
+
+$('addPrizeForm').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const name = $('newPrizeName').value.trim();
+  const description = $('newPrizeDescription').value.trim();
+  const emoji = $('newPrizeEmoji').value.trim() || '🎁';
+
+  if (!name || !description) return;
+
+  $('addPrizeButton').disabled = true;
+  showMessage('prizeMessage', 'Добавляем подарок...');
+
+  const { error } = await supabaseClient.rpc('add_prize', {
+    p_name: name,
+    p_description: description,
+    p_emoji: emoji,
+    p_sort_order: prizesCache.length + 1
+  });
+
+  $('addPrizeButton').disabled = false;
+
+  if (error) {
+    showMessage('prizeMessage',
+      'Не удалось добавить подарок: ' + error.message, 'error');
+    return;
+  }
+
+  $('newPrizeName').value = '';
+  $('newPrizeDescription').value = '';
+  $('newPrizeEmoji').value = '🎁';
+
+  showMessage('prizeMessage', 'Подарок добавлен!', 'success');
+  await loadPrizes();
+});
+
+function openEditPrize(id) {
+  const prize = prizesCache.find(item => item.prize_id === id);
+  if (!prize) return;
+
+  $('editPrizeId').value = prize.prize_id;
+  $('editPrizeEmoji').value = prize.prize_emoji || '🎁';
+  $('editPrizeName').value = prize.prize_name;
+  $('editPrizeDescription').value = prize.prize_description;
+
+  showMessage('editMessage', '');
+  $('editOverlay').classList.remove('hidden');
+}
+
+function closeEditPrize() {
+  $('editOverlay').classList.add('hidden');
+}
+
+$('cancelEditButton').addEventListener('click', closeEditPrize);
+
+$('editPrizeForm').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const id = $('editPrizeId').value;
+  const name = $('editPrizeName').value.trim();
+  const description = $('editPrizeDescription').value.trim();
+  const emoji = $('editPrizeEmoji').value.trim() || '🎁';
+
+  const prize = prizesCache.find(item => item.prize_id === id);
+  if (!prize) return;
+
+  $('savePrizeButton').disabled = true;
+  showMessage('editMessage', 'Сохраняем...');
+
+  const { error } = await supabaseClient.rpc('update_prize', {
+    p_id: id,
+    p_name: name,
+    p_description: description,
+    p_emoji: emoji,
+    p_sort_order: prize.prize_sort_order
+  });
+
+  $('savePrizeButton').disabled = false;
+
+  if (error) {
+    showMessage('editMessage',
+      'Не удалось сохранить: ' + error.message, 'error');
+    return;
+  }
+
+  closeEditPrize();
+  showMessage('prizeListMessage', 'Изменения сохранены!', 'success');
+  await loadPrizes();
+});
+
+async function deletePrize(id) {
+  const prize = prizesCache.find(item => item.prize_id === id);
+  if (!prize) return;
+
+  if (!confirm(`Удалить подарок «${prize.prize_name}»?`)) return;
+
+  const { error } = await supabaseClient.rpc('delete_prize', {
+    p_id: id
+  });
+
+  if (error) {
+    showMessage('prizeListMessage',
+      'Не удалось удалить подарок: ' + error.message, 'error');
+    return;
+  }
+
+  showMessage('prizeListMessage', 'Подарок удалён.', 'success');
+  await loadPrizes();
+}
+
+$('refreshPrizes').addEventListener('click', loadPrizes);
+
+
+// ==========================================
+// НОВЫЙ РОЗЫГРЫШ
+// ==========================================
+
+$('resetDrawButton').addEventListener('click', async () => {
+  const firstConfirm = confirm(
+    'Вы действительно хотите удалить ВСЕХ участников и их результаты?'
+  );
+
+  if (!firstConfirm) return;
+
+  const secondConfirm = confirm(
+    'Последнее подтверждение: все персональные ссылки перестанут работать. ' +
+    'Подарки сохранятся, результаты будут сброшены. Продолжить?'
+  );
+
+  if (!secondConfirm) return;
+
+  $('resetDrawButton').disabled = true;
+  showMessage('resetMessage', 'Очищаем розыгрыш...');
+
+  const { data, error } = await supabaseClient.rpc('reset_draw');
+
+  $('resetDrawButton').disabled = false;
+
+  if (error) {
+    showMessage('resetMessage',
+      'Не удалось очистить розыгрыш: ' + error.message, 'error');
+    return;
+  }
+
+  showMessage('resetMessage',
+    `Готово! Удалено участников: ${data}. Все подарки снова доступны.`,
+    'success');
+
+  await loadParticipants();
+  await loadPrizes();
+});
+
+
+// ==========================================
+// АВТОРИЗАЦИЯ
+// ==========================================
+
+async function showAdmin(user) {
+  $('loginBlock').classList.add('hidden');
+  $('adminBlock').classList.remove('hidden');
+  $('workspace').classList.remove('hidden');
+  $('userEmail').textContent = 'Вы вошли: ' + user.email;
+
+  await Promise.all([loadParticipants(), loadPrizes()]);
+}
+
+async function checkSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    showMessage('loginMessage', error.message, 'error');
+    return;
+  }
+
+  if (data.session) {
+    await showAdmin(data.session.user);
+  }
+}
+
+$('loginForm').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  $('loginButton').disabled = true;
+  showMessage('loginMessage', 'Входим...');
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: $('email').value.trim(),
+    password: $('password').value
+  });
+
+  $('loginButton').disabled = false;
+
+  if (error) {
+    showMessage('loginMessage',
+      'Ошибка входа: ' + error.message, 'error');
+    return;
+  }
+
+  await showAdmin(data.user);
+  showMessage('loginMessage', '');
+});
+
+$('logoutButton').addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  $('adminBlock').classList.add('hidden');
+  $('workspace').classList.add('hidden');
+  $('loginBlock').classList.remove('hidden');
+  $('password').value = '';
+});
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  if (!session) {
     $('adminBlock').classList.add('hidden');
     $('workspace').classList.add('hidden');
     $('loginBlock').classList.remove('hidden');
-    $('password').value = '';
-  });
+  }
+});
 
-  $('addForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const name = $('participantName').value.trim();
-    if (!name) return;
-
-    $('addButton').disabled = true;
-    showMessage('addMessage', 'Добавляем участника...');
-
-    const { data, error } = await supabaseClient.rpc('add_participant', {
-      p_name: name
-    });
-
-    $('addButton').disabled = false;
-
-    if (error) {
-      showMessage('addMessage', 'Не удалось добавить участника: ' + error.message, 'error');
-      return;
-    }
-
-    $('participantName').value = '';
-    showMessage('addMessage', 'Участник добавлен!', 'success');
-    await loadParticipants();
-  });
-
-  $('refreshButton').addEventListener('click', loadParticipants);
-
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    if (!session) {
-      $('adminBlock').classList.add('hidden');
-      $('workspace').classList.add('hidden');
-      $('loginBlock').classList.remove('hidden');
-    }
-  });
-
-  checkSession();
+checkSession();
 </script>
 </body>
 </html>
