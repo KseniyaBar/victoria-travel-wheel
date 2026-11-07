@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -165,7 +164,7 @@ canvas {
   opacity: 0;
 }
 
-/* Фиолетовая кнопка — прежняя форма и анимация */
+/* Кнопка вращения */
 button {
   display: block;
   width: min(100%, 340px);
@@ -295,7 +294,6 @@ footer {
 
     <rect width="1440" height="1000" fill="url(#seaGradient)"/>
 
-    <!-- Мягкие подводные оттенки -->
     <path d="M0 490 Q250 455 480 485 T950 480 T1440 470
              L1440 760 Q1150 720 900 750 T400 735 T0 760Z"
           fill="#d5e3df" opacity=".22"/>
@@ -304,7 +302,6 @@ footer {
           fill="none" stroke="#e9f1eb" stroke-width="55"
           opacity=".12" filter="url(#softWave)"/>
 
-    <!-- Размытая дальняя морская пена -->
     <path d="M-40 700
              C130 660 230 680 370 690
              C510 700 590 665 740 680
@@ -313,7 +310,6 @@ footer {
           fill="none" stroke="#f9fbf5" stroke-width="35"
           stroke-linecap="round" opacity=".43" filter="url(#softWave)"/>
 
-    <!-- Основная мягкая линия прибоя -->
     <path d="M-40 730
              C100 690 220 715 350 720
              C500 730 610 690 760 710
@@ -322,7 +318,6 @@ footer {
           fill="none" stroke="url(#foamGradient)" stroke-width="24"
           stroke-linecap="round" opacity=".8" filter="url(#fineWave)"/>
 
-    <!-- Тонкие неровные линии пены -->
     <path d="M-30 718
              C100 695 190 713 300 712
              C420 710 490 690 600 705
@@ -340,7 +335,6 @@ footer {
           fill="none" stroke="#ffffff" stroke-width="3"
           stroke-linecap="round" opacity=".38" filter="url(#fineWave)"/>
 
-    <!-- Небольшие размытые участки пены -->
     <g fill="#ffffff" opacity=".32" filter="url(#softWave)">
       <ellipse cx="180" cy="725" rx="90" ry="12"/>
       <ellipse cx="570" cy="714" rx="110" ry="10"/>
@@ -348,7 +342,6 @@ footer {
       <ellipse cx="1320" cy="713" rx="90" ry="10"/>
     </g>
 
-    <!-- Песчаный берег в самом низу -->
     <path d="M-30 775
              C130 760 260 785 410 775
              C570 765 690 790 840 775
@@ -365,7 +358,6 @@ footer {
              L1470 1030 L-30 1030Z"
           fill="url(#sandPattern)" opacity=".8"/>
 
-    <!-- Лёгкий влажный оттенок у кромки воды -->
     <path d="M-20 770
              C130 755 260 778 410 768
              C570 758 690 782 840 768
@@ -515,8 +507,11 @@ function wrapCanvasText(text, fontSize, maxWidth) {
   };
 }
 
+/* Отрисовка колеса с радиальными надписями */
 function drawWheel() {
-  const cx = 300, cy = 300, radius = 285;
+  const cx = 300;
+  const cy = 300;
+  const radius = 285;
 
   ctx.clearRect(0, 0, 600, 600);
 
@@ -541,8 +536,9 @@ function drawWheel() {
   prizes.forEach((prize, i) => {
     const start = -Math.PI / 2 + i * angle;
     const end = start + angle;
+    const middle = start + angle / 2;
 
-    /* Рисуем сектор */
+    // Рисуем сектор
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, radius, start, end);
@@ -555,63 +551,85 @@ function drawWheel() {
     ctx.lineWidth = 5;
     ctx.stroke();
 
-    const middle = start + angle / 2;
-    const labelRadius = prizes.length <= 5 ? 178 : 190;
-    const x = cx + Math.cos(middle) * labelRadius;
-    const y = cy + Math.sin(middle) * labelRadius;
-
     const label = getWheelLabel(prize);
 
     ctx.save();
 
     /*
-      Поворачиваем систему координат подписи относительно центра.
-      Верх букв направлен к внешнему краю колеса,
-      низ букв — к центру.
-      При вращении колеса надписи вращаются вместе с ним.
+      Подпись располагается радиально.
+      Эмодзи находится у внешнего края.
+      Название подарка продолжается в направлении центра.
     */
-    ctx.translate(x, y);
-    ctx.rotate(middle + Math.PI / 2);
 
-    ctx.textAlign = 'center';
+    const labelRadius = 245;
+
+    const x = cx + Math.cos(middle) * labelRadius;
+    const y = cy + Math.sin(middle) * labelRadius;
+
+    ctx.translate(x, y);
+
+    // Направление текста — от края к центру
+    ctx.rotate(middle + Math.PI);
+
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
 
-    const emojiSize = prizes.length > 8 ? 26 : 32;
-    const baseTextSize = prizes.length > 8 ? 17 : (prizes.length > 6 ? 19 : 22);
-    const maxWidth = prizes.length > 7 ? 110 : 135;
-    const maxLines = 3;
+    const emojiSize = prizes.length > 8 ? 23 : 28;
 
-    let layout = wrapCanvasText(label.name, baseTextSize, maxWidth);
+    const baseTextSize =
+      prizes.length > 8 ? 15 :
+      prizes.length > 6 ? 17 : 19;
 
-    while (layout.lines.length > maxLines && layout.fontSize > 12) {
-      layout = wrapCanvasText(label.name, layout.fontSize - 1, maxWidth);
+    // Доступная ширина текста с учётом ширины сектора
+    const availableWidth =
+      2 * 210 * Math.sin(angle / 2) - 20;
+
+    const maxWidth = Math.max(
+      55,
+      Math.min(prizes.length > 7 ? 125 : 165, availableWidth)
+    );
+
+    // Эмодзи у внешнего края
+    ctx.font = `${emojiSize}px Arial`;
+    ctx.fillStyle = '#29464a';
+    ctx.fillText(label.emoji, 0, 0);
+
+    // Название подарка ближе к центру
+    const textStart = emojiSize + 8;
+
+    let layout = wrapCanvasText(
+      label.name,
+      baseTextSize,
+      maxWidth
+    );
+
+    while (layout.lines.length > 3 && layout.fontSize > 11) {
+      layout = wrapCanvasText(
+        label.name,
+        layout.fontSize - 1,
+        maxWidth
+      );
     }
 
     const fontSize = layout.fontSize;
+    const lineHeight = fontSize * 1.15;
     const lines = layout.lines;
 
-    const totalHeight = lines.length * fontSize * 1.05;
-    const lineHeight = fontSize * 1.05;
-
-    const startY = 13 - totalHeight / 2;
-
-    /* Эмодзи находится ближе к внешнему краю сектора */
-    ctx.fillStyle = '#29464a';
-    ctx.font = `${emojiSize}px Arial`;
-    ctx.fillText(label.emoji, 0, startY - emojiSize * 0.9);
-
-    /* Название подарка */
-    ctx.fillStyle = '#29464a';
     ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
+    ctx.fillStyle = '#29464a';
 
     lines.forEach((line, index) => {
-      ctx.fillText(line, 0, startY + index * lineHeight);
+      ctx.fillText(
+        line,
+        textStart,
+        (index - (lines.length - 1) / 2) * lineHeight
+      );
     });
 
     ctx.restore();
   });
 
-  /* Внешняя обводка колеса */
+  // Внешняя обводка колеса
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.strokeStyle = '#fff';
