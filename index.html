@@ -28,7 +28,6 @@ body {
   isolation: isolate;
 }
 
-/* Рисованный фон: море, морская пена и песок */
 .sea-background {
   position: fixed;
   inset: 0;
@@ -50,7 +49,6 @@ body {
   display: block;
 }
 
-/* Лёгкая песочная текстура */
 .sand-texture {
   position: absolute;
   left: 0;
@@ -164,7 +162,6 @@ canvas {
   opacity: 0;
 }
 
-/* Кнопка вращения */
 button {
   display: block;
   width: min(100%, 340px);
@@ -259,7 +256,6 @@ footer {
 
 <body>
 
-<!-- Фоновая иллюстрация -->
 <div class="sea-background" aria-hidden="true">
   <svg viewBox="0 0 1440 1000" preserveAspectRatio="none"
        xmlns="http://www.w3.org/2000/svg">
@@ -401,7 +397,7 @@ footer {
 
 <script>
 const SUPABASE_URL = 'https://qvlxuzvltcqjxlsqboip.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680pGjhMg_kvKvsrGo';
+const SUPABASE_KEY = 'sb_publishable_yQycydwZXHu69680PgjhMg_kvKvsrGo';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -431,7 +427,6 @@ let participantName = '';
 let prizes = [];
 let busy = false;
 
-/* Получение значения из объекта */
 function getField(item, ...keys) {
   for (const key of keys) {
     if (item && item[key] !== undefined && item[key] !== null) {
@@ -441,7 +436,6 @@ function getField(item, ...keys) {
   return '';
 }
 
-/* Название сектора берётся напрямую из админки */
 function getWheelLabel(prize) {
   return {
     name: String(prize.name || '').trim(),
@@ -457,7 +451,6 @@ function normalizePrize(item) {
   };
 }
 
-/* Перенос названий только по целым словам */
 function wrapCanvasText(text, fontSize, maxWidth) {
   const words = text.split(/\s+/).filter(Boolean);
   let fittedFontSize = fontSize;
@@ -507,7 +500,7 @@ function wrapCanvasText(text, fontSize, maxWidth) {
   };
 }
 
-/* Отрисовка колеса с радиальными надписями */
+/* Отрисовка колеса с надписями поперёк секторов */
 function drawWheel() {
   const cx = 300;
   const cy = 300;
@@ -556,46 +549,44 @@ function drawWheel() {
     ctx.save();
 
     /*
-      Подпись располагается радиально.
-      Эмодзи находится у внешнего края.
-      Название подарка продолжается в направлении центра.
+      Надписи располагаются поперёк секторов.
+      Их направление соответствует касательной к окружности.
+      Нижняя половина колеса автоматически переворачивается,
+      чтобы текст всегда читался нормально.
     */
 
-    const labelRadius = 245;
+    const labelRadius = 190;
 
     const x = cx + Math.cos(middle) * labelRadius;
     const y = cy + Math.sin(middle) * labelRadius;
 
     ctx.translate(x, y);
 
-    // Направление текста — от края к центру
-    ctx.rotate(middle + Math.PI);
+    let rotation = middle + Math.PI / 2;
 
-    ctx.textAlign = 'left';
+    // Не допускаем перевёрнутого текста в нижней половине колеса
+    if (rotation > Math.PI / 2 && rotation < Math.PI * 1.5) {
+      rotation += Math.PI;
+    }
+
+    ctx.rotate(rotation);
+
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const emojiSize = prizes.length > 8 ? 23 : 28;
+    const emojiSize = prizes.length > 8 ? 21 : 25;
 
     const baseTextSize =
-      prizes.length > 8 ? 15 :
-      prizes.length > 6 ? 17 : 19;
+      prizes.length > 8 ? 14 :
+      prizes.length > 6 ? 16 : 18;
 
-    // Доступная ширина текста с учётом ширины сектора
     const availableWidth =
-      2 * 210 * Math.sin(angle / 2) - 20;
+      2 * labelRadius * Math.sin(angle / 2) - 18;
 
     const maxWidth = Math.max(
-      55,
+      45,
       Math.min(prizes.length > 7 ? 125 : 165, availableWidth)
     );
-
-    // Эмодзи у внешнего края
-    ctx.font = `${emojiSize}px Arial`;
-    ctx.fillStyle = '#29464a';
-    ctx.fillText(label.emoji, 0, 0);
-
-    // Название подарка ближе к центру
-    const textStart = emojiSize + 8;
 
     let layout = wrapCanvasText(
       label.name,
@@ -603,7 +594,7 @@ function drawWheel() {
       maxWidth
     );
 
-    while (layout.lines.length > 3 && layout.fontSize > 11) {
+    while (layout.lines.length > 3 && layout.fontSize > 10) {
       layout = wrapCanvasText(
         label.name,
         layout.fontSize - 1,
@@ -612,17 +603,27 @@ function drawWheel() {
     }
 
     const fontSize = layout.fontSize;
-    const lineHeight = fontSize * 1.15;
+    const lineHeight = fontSize * 1.12;
     const lines = layout.lines;
 
+    // Эмодзи над названием
+    ctx.font = `${emojiSize}px Arial`;
+    ctx.fillStyle = '#29464a';
+    ctx.fillText(
+      label.emoji,
+      0,
+      -(lines.length * lineHeight) / 2 - emojiSize * 0.35
+    );
+
+    // Название подарка
     ctx.font = `900 ${fontSize}px "Nunito Sans", sans-serif`;
     ctx.fillStyle = '#29464a';
 
     lines.forEach((line, index) => {
       ctx.fillText(
         line,
-        textStart,
-        (index - (lines.length - 1) / 2) * lineHeight
+        0,
+        (index - (lines.length - 1) / 2) * lineHeight + emojiSize * 0.45
       );
     });
 
